@@ -3,7 +3,11 @@ package services
 import "library_management/models"
 
 var nextInt = 0
-var LIB = models.Library{Books: make(map[int]models.Book), Members: make(map[int]models.Member)}
+var LIB = models.Library{Books: make(map[int]models.Book), Members: map[int]models.Member{
+	0: {ID: 0, Name: "Shear", BorrowedBooks: []models.Book{}},
+	1: {ID: 1, Name: "Aben", BorrowedBooks: []models.Book{}},
+	2: {ID: 2, Name: "Zyri", BorrowedBooks: []models.Book{}},
+}}
 
 func HandleAddBook(title string, author string) {
 	newBook := models.Book{ID: nextInt, Title: title, Status: "available", Author: author}

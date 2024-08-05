@@ -39,6 +39,9 @@ func (lib *Library) BorrowBook(bookID int, memberID int) error {
 		return LibError{message: "Book not available: It has already been borrowed."}
 	}
 
+	book := lib.Books[bookID]
+	book.Status = "borrowed"
+	lib.Books[bookID] = book
 	member := lib.Members[memberID]
 	member.BorrowedBooks = append(member.BorrowedBooks, lib.Books[bookID])
 	lib.Members[memberID] = member

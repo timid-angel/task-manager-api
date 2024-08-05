@@ -24,11 +24,11 @@ func GetInputStr(reader *bufio.Reader, prompt string) string {
 		fmt.Print(prompt)
 		input, err := reader.ReadString('\n')
 		if err != nil {
-			fmt.Print("\t\t**Error: ", err.Error())
+			fmt.Printf("\t\t**Error: %v\n", err.Error())
 			continue
 		}
 
-		return strings.TrimSpace(input)
+		return strings.ToLower(strings.TrimSpace(input))
 	}
 }
 
@@ -37,13 +37,13 @@ func GetInputInt(reader *bufio.Reader, prompt string) int {
 		fmt.Print(prompt)
 		input, err := reader.ReadString('\n')
 		if err != nil {
-			fmt.Print("\t\t**Error: ", err.Error())
+			fmt.Printf("\t\t**Error: %v\n", err.Error())
 			continue
 		}
 
 		res, err := strconv.ParseInt(strings.TrimSpace(input), 10, 32)
 		if err != nil {
-			fmt.Print("\t\t**Error: ", err.Error())
+			fmt.Printf("\t\t**Error: %v\n", err.Error())
 			continue
 		}
 
@@ -85,7 +85,7 @@ func Run() {
 			memberID := GetInputInt(reader, "\tMember ID: ")
 			err := services.HandleBorrow(bookID, memberID)
 			if err != nil {
-				fmt.Printf("\t\t**Error: %v", err.Error())
+				fmt.Printf("\t\t**Error: %v\n", err.Error())
 				continue
 			}
 
@@ -96,7 +96,7 @@ func Run() {
 			memberID := GetInputInt(reader, "\tMember ID: ")
 			err := services.HandleReturn(bookID, memberID)
 			if err != nil {
-				fmt.Printf("\t\t**Error: %v", err.Error())
+				fmt.Printf("\t\t**Error: %v\n", err.Error())
 				continue
 			}
 
@@ -110,7 +110,8 @@ func Run() {
 			borrowedBooks := services.HandleListBorrowed()
 			LogBooks(borrowedBooks, "\tBorrowed Books:")
 
-		case "q":
+		case "q", "exit", "quit":
+			fmt.Print("\n......Program Terminated......\n")
 			active = false
 
 		default:
