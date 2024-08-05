@@ -1,6 +1,9 @@
 package main
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 var punctuations = []string{"?", ".", ",", "'", ":", ";", "\""}
 
@@ -30,9 +33,21 @@ func IsPalindrome(s string) bool {
 		if word[i] != word[j] {
 			return false
 		}
+		i++
+		j--
 	}
 
 	return true
 }
 
-func main() {}
+func main() {
+	f1t1 := "the red hare jumped over the sly fox"
+	f1t2 := "Hello hello hello? he:llo"
+	fmt.Printf("Expected len 7, got len %v\n", len(GetWordCount(f1t1)))
+	fmt.Printf("Expected len 1, got len %v\n", len(GetWordCount(f1t2)))
+
+	f2t1 := "this is not a palindrome   "
+	f2t2 := " this siht   "
+	fmt.Printf("Expected isPalindrome: false, got %v\n", IsPalindrome(f2t1))
+	fmt.Printf("Expected isPalindrome: true, got %v\n", IsPalindrome(f2t2))
+}

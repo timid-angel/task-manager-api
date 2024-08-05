@@ -10,6 +10,10 @@ import (
 
 var data = make(map[string]float64)
 
+/*
+Takes a reader initialized with the standard input (os.Stdin) and returns
+the input with all the whitespace trimmed.
+*/
 func GetInput(r *bufio.Reader) string {
 	val, err := r.ReadString('\n')
 	if err != nil {
@@ -19,6 +23,9 @@ func GetInput(r *bufio.Reader) string {
 	return strings.TrimSpace(val)
 }
 
+/*
+Calculates and returns the average of the grades stored in `data`
+*/
 func CalculateAverage(data map[string]float64) float64 {
 	var total float64
 	for _, v := range data {
@@ -28,6 +35,9 @@ func CalculateAverage(data map[string]float64) float64 {
 	return total / float64(len(data))
 }
 
+/*
+Prints a summary of the collected data in a user-friendly format.
+*/
 func ReportData(name string, data map[string]float64) {
 	fmt.Printf("\nSummary\nName: %v\nAdded subjects: %v\n\tSubject\t\tGrade\n", name, len(data))
 	for sub, grade := range data {
