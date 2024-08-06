@@ -1,6 +1,13 @@
 # Introduction
 The endpoints of the task manager API have been documented along with sample requests and sample responses. For direct access to the API requests, import the collection file located in `/docs/`.
 
+To run the application, go to the root directory of the project and run:
+```bash
+go run .
+```
+
+To check whether the API has started running successfully, make a request to `/ping`.
+
 ## Get Tasks
 
 **METHOD: GET**

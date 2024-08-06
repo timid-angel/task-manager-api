@@ -8,11 +8,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// handler for GET /tasks
 func GetAll(c *gin.Context) {
 	tasks := services.GetAllTasks()
 	c.JSON(http.StatusOK, tasks)
 }
 
+// handler for GET /tasks/:id
 func GetOne(c *gin.Context) {
 	id := c.Param("id")
 	task, err := services.GetTaskByID(id)
@@ -24,6 +26,7 @@ func GetOne(c *gin.Context) {
 	c.JSON(http.StatusOK, task)
 }
 
+// handler for POST /tasks
 func Create(c *gin.Context) {
 	var newTask models.Task
 	if err := c.Bind(&newTask); err != nil {
@@ -35,6 +38,7 @@ func Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, newTask)
 }
 
+// handler for PUT /tasks/:id
 func Update(c *gin.Context) {
 	var updatedTask models.Task
 	id := c.Param("id")
@@ -51,6 +55,7 @@ func Update(c *gin.Context) {
 	c.JSON(http.StatusOK, newTask)
 }
 
+// handler for DELETE /tasks/:id
 func Delete(c *gin.Context) {
 	id := c.Param("id")
 	err := services.DeleteTask(id)

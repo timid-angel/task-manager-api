@@ -6,6 +6,8 @@ To run the application, go to the root directory of the project and run:
 go run .
 ```
 
+To check whether the API has started running successfully, make a request to `/ping`.
+
 **[IMPORTANT]** The application uses the connection string defined in `/env.go`. To run the application, you must provide a connection string for the DB. This can either be the address of your local mongod instance or the address of an atlas cluster.
 
 **Sample `env.go`**

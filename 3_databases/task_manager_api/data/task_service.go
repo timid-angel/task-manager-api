@@ -21,6 +21,7 @@ func (err ServiceError) Error() string {
 	return err.message
 }
 
+// retrieves all the tasks in the db
 func GetAllTasks() ([]models.Task, error) {
 	cursor, err := TaskCollection.Find(context.TODO(), bson.D{{}})
 	if err != nil {
@@ -43,6 +44,7 @@ func GetAllTasks() ([]models.Task, error) {
 	return tasks, nil
 }
 
+// retrieves the task associated with the provided id if it exists
 func GetTaskByID(id string) (models.Task, error) {
 	var task models.Task
 	result := TaskCollection.FindOne(context.TODO(), bson.D{{Key: "id", Value: id}})
@@ -54,6 +56,7 @@ func GetTaskByID(id string) (models.Task, error) {
 	return task, nil
 }
 
+// adds the provided task to the database
 func AddTask(newTask models.Task) error {
 	_, err := TaskCollection.InsertOne(context.TODO(), newTask)
 	if err != nil {
@@ -63,6 +66,7 @@ func AddTask(newTask models.Task) error {
 	return nil
 }
 
+// updates the task associated with the provided id with the parameters provided in the provided task struct
 func UpdateTask(updatedTask models.Task, id string) (models.Task, error) {
 	var setAttributes bson.D
 	var task models.Task
@@ -99,6 +103,7 @@ func UpdateTask(updatedTask models.Task, id string) (models.Task, error) {
 	return newTask, nil
 }
 
+// deletes the task associated with the provided id if it exists
 func DeleteTask(id string) error {
 	result := TaskCollection.FindOneAndDelete(context.TODO(), bson.D{{Key: "id", Value: id}})
 	if result.Err() != nil {

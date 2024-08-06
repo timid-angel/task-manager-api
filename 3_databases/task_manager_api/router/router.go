@@ -14,7 +14,7 @@ runs the API with the provided port number.
 func CreateRouter(port int) {
 	router := gin.Default()
 
-	// route to check the
+	// route to check the up status of the API
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "pong"})
 	})
