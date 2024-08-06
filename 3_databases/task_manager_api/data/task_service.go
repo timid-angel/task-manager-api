@@ -7,6 +7,12 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+/*
+A struct that implements the `error` interface.
+Created to enable the exchange of error messages
+and signals between the different sections of the
+services sub-package.
+*/
 type ServiceError struct {
 	message string
 }
@@ -22,6 +28,8 @@ func GetAllTasks() ([]models.Task, error) {
 	}
 
 	tasks := []models.Task{}
+
+	// loop through the cursor and add items to the slice
 	for cursor.Next(context.TODO()) {
 		var task models.Task
 		err := cursor.Decode(&task)
@@ -58,6 +66,9 @@ func AddTask(newTask models.Task) error {
 func UpdateTask(updatedTask models.Task, id string) (models.Task, error) {
 	var setAttributes bson.D
 	var task models.Task
+
+	// check if the fields of the incoming struct are not the default values
+	// and append the results to setAttributes accordingly
 	if updatedTask.Title != "" {
 		setAttributes = append(setAttributes, bson.E{Key: "title", Value: updatedTask.Title})
 	}
@@ -79,6 +90,7 @@ func UpdateTask(updatedTask models.Task, id string) (models.Task, error) {
 		return task, result.Err()
 	}
 
+	// fetch the updated task to get the latest version of the updated task
 	newTask, err := GetTaskByID(id)
 	if result.Err() != nil {
 		return newTask, err

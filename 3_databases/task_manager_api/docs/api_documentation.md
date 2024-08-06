@@ -1,6 +1,22 @@
 # Introduction
 The endpoints of the task manager API have been documented along with sample requests and sample responses. For direct access to the API requests, import the collection file located in `/docs/`.
 
+To run the application, go to the root directory of the project and run:
+```bash
+go run .
+```
+
+**[IMPORTANT]** The application uses the connection string defined in `/env.go`. To run the application, you must provide a connection string for the DB. This can either be the address of your local mongod instance or the address of an atlas cluster.
+
+**Sample `env.go`**
+```go
+package main
+
+// this connection string will be made an environment variable upon execution
+var DB_URL = "mongodb://localhost:27017"
+```
+There are no changes to the response and request formats during the transition to using MongoDB for data persistance.
+
 ## Get Tasks
 
 **METHOD: GET**

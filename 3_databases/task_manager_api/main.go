@@ -8,6 +8,7 @@ import (
 )
 
 func main() {
+	// sets the connection string as an OS environment variable
 	os.Setenv("DB_CONNECTION_STRING", DB_URL)
 	err := services.ConnectDB()
 	if err != nil {
@@ -16,5 +17,5 @@ func main() {
 	}
 
 	log.Println("Succesfully connected to DB")
-	router.CreateRouter()
+	router.CreateRouter(8080)
 }
