@@ -23,7 +23,7 @@ func GetWordCount(s string) map[string]int {
 }
 
 func IsPalindrome(s string) bool {
-	word := strings.TrimSpace(strings.ToLower(s))
+	word := strings.ReplaceAll(strings.TrimSpace(strings.ToLower(s)), " ", "")
 	for _, punct := range punctuations {
 		word = strings.ReplaceAll(word, punct, "")
 	}
@@ -47,7 +47,7 @@ func main() {
 	fmt.Printf("Expected len 1, got len %v\n", len(GetWordCount(f1t2)))
 
 	f2t1 := "this is not a palindrome   "
-	f2t2 := " this siht   "
+	f2t2 := " this    Siht   "
 	fmt.Printf("Expected isPalindrome: false, got %v\n", IsPalindrome(f2t1))
 	fmt.Printf("Expected isPalindrome: true, got %v\n", IsPalindrome(f2t2))
 }
