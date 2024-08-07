@@ -73,7 +73,7 @@ func AuthMiddlewareWithRoles(validRoles []string) gin.HandlerFunc {
 		// get the username from the claims of the JWT
 		username, ok := token.Claims.(jwt.MapClaims)["username"]
 		if !ok {
-			c.JSON(401, gin.H{"message": "Invalid token"})
+			c.JSON(401, gin.H{"message": "Invalid token: User not found"})
 			c.Abort()
 			return
 		}
@@ -81,7 +81,7 @@ func AuthMiddlewareWithRoles(validRoles []string) gin.HandlerFunc {
 		// check the expiry date of the token
 		expiresAt, ok := token.Claims.(jwt.MapClaims)["expiresAt"]
 		if !ok {
-			c.JSON(401, gin.H{"message": "Expiry date not found"})
+			c.JSON(401, gin.H{"message": "Invalid token: Expiry date not found"})
 			c.Abort()
 			return
 		}

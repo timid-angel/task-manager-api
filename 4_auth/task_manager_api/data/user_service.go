@@ -132,7 +132,6 @@ func CreateUser(user models.User) CodedError {
 	return nil
 }
 
-// TODO: Add more map claims
 /*
 Checks if the passed user exists in the system before checking with
 the hashed password. The function then signs a json-web-token after
