@@ -42,7 +42,7 @@ func GetOne(c *gin.Context) {
 	id := c.Param("id")
 	task, err := services.GetTaskByID(id)
 	if err != nil {
-		c.JSON(GetErrorCode(err), err.Error())
+		c.JSON(GetErrorCode(err), gin.H{"message": err.Error()})
 		return
 	}
 
@@ -57,7 +57,12 @@ func Create(c *gin.Context) {
 		return
 	}
 
-	services.AddTask(newTask)
+	err := services.AddTask(newTask)
+	if err != nil {
+		c.JSON(err.GetCode(), gin.H{"message": err.Error()})
+		return
+	}
+
 	c.JSON(http.StatusCreated, newTask)
 }
 

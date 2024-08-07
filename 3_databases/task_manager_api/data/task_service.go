@@ -5,7 +5,17 @@ import (
 	"task_manager_api/models"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
+
+/*
+Interface used to define structs that compose the standard error interface
+with an function used to obtain an error code.
+*/
+type CodedError interface {
+	error
+	GetCode() int
+}
 
 /*
 A struct that implements the `error` interface.
@@ -15,10 +25,15 @@ services sub-package.
 */
 type ServiceError struct {
 	message string
+	code    int
 }
 
 func (err ServiceError) Error() string {
 	return err.message
+}
+
+func (err ServiceError) GetCode() int {
+	return err.code
 }
 
 // retrieves all the tasks in the db
@@ -57,10 +72,19 @@ func GetTaskByID(id string) (models.Task, error) {
 }
 
 // adds the provided task to the database
-func AddTask(newTask models.Task) error {
+func AddTask(newTask models.Task) CodedError {
+	_, queryErr := GetTaskByID(newTask.ID)
+	if queryErr == nil {
+		return ServiceError{message: "A task with the provided ID already exists", code: 400}
+	}
+
+	if queryErr.Error() != mongo.ErrNoDocuments.Error() {
+		return ServiceError{message: "Internal server error: " + queryErr.Error(), code: 500}
+	}
+
 	_, err := TaskCollection.InsertOne(context.TODO(), newTask)
 	if err != nil {
-		return err
+		return ServiceError{message: "Internal server error: " + queryErr.Error(), code: 500}
 	}
 
 	return nil

@@ -16,15 +16,6 @@ import (
 )
 
 /*
-Interface used to define structs that compose the standard error interface
-with an function used to obtain an error code.
-*/
-type CodedError interface {
-	error
-	GetCode() int
-}
-
-/*
 Implements the CodedError interface and serves to communicate the nature of
 certain errors directly to the controller.
 */

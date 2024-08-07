@@ -9,6 +9,15 @@ import (
 )
 
 /*
+Interface used to define structs that compose the standard error interface
+with an function used to obtain an error code.
+*/
+type CodedError interface {
+	error
+	GetCode() int
+}
+
+/*
 A struct that implements the `error` interface.
 Created to enable the exchange of error messages
 and signals between the different sections of the
