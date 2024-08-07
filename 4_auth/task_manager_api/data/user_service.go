@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 	"task_manager_api/models"
+	"time"
 
 	"github.com/golang-jwt/jwt"
 	"go.mongodb.org/mongo-driver/bson"
@@ -95,7 +96,7 @@ func CreateUser(user models.User) CodedError {
 	}
 
 	// validate passowrd
-	if len(user.Password) <= 8 {
+	if len(user.Password) < 8 {
 		return UserError{message: "Password must be atleast 8 characters long", code: 400}
 	}
 
@@ -161,7 +162,8 @@ func ValidateAndGetToken(user models.User) (string, CodedError) {
 	// signs token with the secret token in the env variables
 	jwtSecret := []byte(os.Getenv("JWT_SECRET_TOKEN"))
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"username": user.Username,
+		"username":  user.Username,
+		"expiresAt": time.Now().Add(time.Hour * 2),
 	})
 	jwtToken, signingErr := token.SignedString(jwtSecret)
 	if signingErr != nil {

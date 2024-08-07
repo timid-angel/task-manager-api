@@ -64,12 +64,12 @@ func GetTaskByID(id string) (models.Task, error) {
 
 // adds the provided task to the database
 func AddTask(newTask models.Task) CodedError {
-	task, queryErr := GetTaskByID(newTask.ID)
-	if queryErr != mongo.ErrNoDocuments && task.ID == newTask.ID {
+	_, queryErr := GetTaskByID(newTask.ID)
+	if queryErr == nil {
 		return ServiceError{message: "Task with ID already exists", code: 400}
 	}
 
-	if queryErr != nil {
+	if queryErr.Error() != mongo.ErrNoDocuments.Error() {
 		return ServiceError{message: queryErr.Error(), code: 500}
 	}
 
