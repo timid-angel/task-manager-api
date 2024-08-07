@@ -23,9 +23,9 @@ func CreateRouter(port int) {
 	// tasks REST end points
 	router.GET("/tasks", controllers.GetAll)
 	router.GET("/tasks/:id", controllers.GetOne)
-	router.POST("/tasks", middlewares.AuthMiddleware(), controllers.Create)
-	router.PUT("/tasks/:id", middlewares.AuthMiddleware(), controllers.Update)
-	router.DELETE("/tasks/:id", middlewares.AuthMiddleware(), controllers.Delete)
+	router.POST("/tasks", middlewares.AuthMiddlewareWithRoles([]string{"user", "admin"}), controllers.Create)
+	router.PUT("/tasks/:id", middlewares.AuthMiddlewareWithRoles([]string{"user", "admin"}), controllers.Update)
+	router.DELETE("/tasks/:id", middlewares.AuthMiddlewareWithRoles([]string{"admin"}), controllers.Delete)
 
 	// user registeration and login
 	router.POST("/signup", controllers.Signup)

@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	services "task_manager_api/data"
 	"task_manager_api/models"
@@ -17,7 +16,6 @@ This function checks for the mongoDB errors in particular and returns the
 404 status code if the document can not be found
 */
 func GetErrorCode(err error) int {
-	log.Printf("%v, %T", err, err)
 	switch err {
 	case mongo.ErrNoDocuments, mongo.ErrNilDocument, mongo.ErrNilCursor:
 		return http.StatusNotFound
@@ -57,7 +55,12 @@ func Create(c *gin.Context) {
 		return
 	}
 
-	services.AddTask(newTask)
+	err := services.AddTask(newTask)
+	if err != nil {
+		c.JSON(err.GetCode(), gin.H{"message": err.Error()})
+		return
+	}
+
 	c.JSON(http.StatusCreated, newTask)
 }
 
@@ -111,7 +114,7 @@ func Signup(c *gin.Context) {
 // handler for /login
 func Login(c *gin.Context) {
 	var user models.User
-	if err := c.Bind(user); err != nil {
+	if err := c.Bind(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Error during object binding"})
 		return
 	}

@@ -5,6 +5,7 @@ import (
 	"task_manager_api/models"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 /*
@@ -15,10 +16,15 @@ services sub-package.
 */
 type ServiceError struct {
 	message string
+	code    int
 }
 
 func (err ServiceError) Error() string {
 	return err.message
+}
+
+func (err ServiceError) GetCode() int {
+	return err.code
 }
 
 // retrieves all the tasks in the db
@@ -57,10 +63,19 @@ func GetTaskByID(id string) (models.Task, error) {
 }
 
 // adds the provided task to the database
-func AddTask(newTask models.Task) error {
+func AddTask(newTask models.Task) CodedError {
+	task, queryErr := GetTaskByID(newTask.ID)
+	if queryErr != mongo.ErrNoDocuments && task.ID == newTask.ID {
+		return ServiceError{message: "Task with ID already exists", code: 400}
+	}
+
+	if queryErr != nil {
+		return ServiceError{message: queryErr.Error(), code: 500}
+	}
+
 	_, err := TaskCollection.InsertOne(context.TODO(), newTask)
 	if err != nil {
-		return err
+		return ServiceError{message: err.Error(), code: 500}
 	}
 
 	return nil
