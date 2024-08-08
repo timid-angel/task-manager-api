@@ -1,6 +1,7 @@
 package router
 
 import (
+	"context"
 	"fmt"
 	"task_manager_api/Delivery/controllers"
 	domain "task_manager_api/Domain"
@@ -11,7 +12,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 /*
@@ -39,6 +42,7 @@ appropriate auth middleware configurations and creates all the task controller
 that provides the handlers for the endpoints
 */
 func NewTaskController(timeout time.Duration, collection *mongo.Collection, group *gin.RouterGroup) {
+	collection.Indexes().CreateOne(context.TODO(), mongo.IndexModel{Keys: bson.E{Key: "id", Value: 1}, Options: options.Index().SetUnique(true)})
 	taskUsecase := usecase.TaskUsecase{
 		TaskRepository: &repository.TaskRepository{
 			Collection: collection,
