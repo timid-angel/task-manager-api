@@ -3,24 +3,32 @@ The endpoints of the task manager API have been documented along with sample req
 
 To run the application, go to the root directory of the project and run:
 ```bash
-go run .
+go run ./Delivery
 ```
+>**Make sure to setup the `.env` file at the root of the project before running the API. Read the details in the next section.**
 
 To check whether the API has started running successfully, make a request to `/ping`.
 
 ## Enviornment Variables
 
-**[IMPORTANT]** The application uses the connection string defined in `/env.go`. To run the application, you must provide a connection string for the DB. This can either be the address of your local mongod instance or the address of an atlas cluster.
+**[IMPORTANT]** There has been a change in how the environment variables are organized. The project now uses the `.env` file located in the root directory with the help of the `viper` package for managing these constants. Additionally, there are additional variables that need to be declared.
 
-In addition to the database connection string, the API also required a secret key that will be used to sign the json-web-tokens. It is advised to use a randomly generated, long text string. A simply access token could potentially break the authorization system.
+The environment variables are as follows:
+- `DB_ADDRESS` - connection string of monogoDB
+- `SECRET_TOKEN` - used to sign and validate json-web-tokens
+- `DB_NAME` - the name of the database instance of the provided connection
+- `PORT` - port to run the API on
+- `TIMEOUT` - time to wait for operations (in seconds)
+- `TOKEN_LIFESPAN_MINUTES` - sets the lifespan of json-web-tokens (in minutes)
 
-**Sample `env.go`**
-```go
-package main
-
-// this connection string will be made an environment variable upon execution
-var DB_URL = "mongodb://localhost:27017"
-var JWT_SECRET_TOKEN = "ealksdafin1o*(Uj7sldALKJFnk&s^lf%@98)"
+**Sample `.env`**
+```
+DB_ADDRESS=mongodb://localhost:27017
+SECRET_TOKEN=long_random_text 
+DB_NAME=task_test
+PORT=8080
+TIMEOUT=1
+TOKEN_LIFESPAN_MINUTES=30
 ```
 There are no changes to the response and request formats during the transition to using MongoDB for data persistance.
 

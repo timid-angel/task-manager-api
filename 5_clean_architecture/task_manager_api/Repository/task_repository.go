@@ -32,9 +32,9 @@ func (tR *TaskRepository) GetAllTasks(c context.Context) ([]domain.Task, domain.
 // retrieves the task associated with the provided id if it exists
 func (tR *TaskRepository) GetTaskByID(c context.Context, taskID string) (domain.Task, domain.CodedError) {
 	var task domain.Task
-	result := tR.Collection.FindOne(context.TODO(), bson.D{{Key: "id", Value: taskID}})
+	result := tR.Collection.FindOne(c, bson.D{{Key: "id", Value: taskID}})
 	if result.Err() != nil && result.Err().Error() == mongo.ErrNoDocuments.Error() {
-		return task, domain.TaskError{Message: "Task not found", Code: domain.ERR_BAD_REQUEST}
+		return task, domain.TaskError{Message: "Task not found", Code: domain.ERR_NOT_FOUND}
 	}
 
 	bindErr := result.Decode(&task)
@@ -47,18 +47,18 @@ func (tR *TaskRepository) GetTaskByID(c context.Context, taskID string) (domain.
 
 // adds the provided task to the database
 func (tR *TaskRepository) AddTask(c context.Context, newTask domain.Task) domain.CodedError {
-	_, queryErr := tR.GetTaskByID(c, newTask.ID)
-	if queryErr == nil {
+	result := tR.Collection.FindOne(c, bson.D{{Key: "id", Value: newTask.ID}})
+	if result.Err() == nil {
 		return domain.TaskError{Message: "Task with the provided ID already exists", Code: domain.ERR_BAD_REQUEST}
 	}
 
-	if queryErr.Error() != mongo.ErrNoDocuments.Error() {
-		return domain.TaskError{Message: "Internal server error: " + queryErr.Error(), Code: domain.ERR_INTERNAL_SERVER}
+	if result.Err().Error() != mongo.ErrNoDocuments.Error() {
+		return domain.TaskError{Message: "Internal server error: " + result.Err().Error(), Code: domain.ERR_INTERNAL_SERVER}
 	}
 
-	_, err := tR.Collection.InsertOne(context.TODO(), newTask)
+	_, err := tR.Collection.InsertOne(c, newTask)
 	if err != nil {
-		return domain.TaskError{Message: "Internal server error: " + queryErr.Error(), Code: domain.ERR_INTERNAL_SERVER}
+		return domain.TaskError{Message: "Internal server error: " + err.Error(), Code: domain.ERR_INTERNAL_SERVER}
 	}
 
 	return nil
@@ -84,12 +84,12 @@ func (tR *TaskRepository) UpdateTask(c context.Context, taskID string, updatedTa
 		setAttributes = append(setAttributes, bson.E{Key: "due_date", Value: updatedTask.DueDate})
 	}
 
-	result := tR.Collection.FindOneAndUpdate(context.TODO(), bson.D{{Key: "id", Value: taskID}}, bson.D{
+	result := tR.Collection.FindOneAndUpdate(c, bson.D{{Key: "id", Value: taskID}}, bson.D{
 		{Key: "$set", Value: setAttributes},
 	})
 
 	if result.Err() != nil && result.Err().Error() == mongo.ErrNoDocuments.Error() {
-		return task, domain.TaskError{Message: "Task not found", Code: domain.ERR_BAD_REQUEST}
+		return task, domain.TaskError{Message: "Task not found", Code: domain.ERR_NOT_FOUND}
 	}
 
 	// fetch the updated task to get the latest version of the updated task
@@ -99,10 +99,10 @@ func (tR *TaskRepository) UpdateTask(c context.Context, taskID string, updatedTa
 
 // deletes the task associated with the provided id if it exists
 func (tR *TaskRepository) DeleteTask(c context.Context, taskID string) domain.CodedError {
-	result := tR.Collection.FindOneAndDelete(context.TODO(), bson.D{{Key: "id", Value: taskID}})
+	result := tR.Collection.FindOneAndDelete(c, bson.D{{Key: "id", Value: taskID}})
 
-	if result.Err() != nil && result.Err().Error() != mongo.ErrNoDocuments.Error() {
-		return domain.TaskError{Message: "Task not found", Code: domain.ERR_BAD_REQUEST}
+	if result.Err() != nil && result.Err().Error() == mongo.ErrNoDocuments.Error() {
+		return domain.TaskError{Message: "Task not found", Code: domain.ERR_NOT_FOUND}
 	}
 
 	if result.Err() != nil {

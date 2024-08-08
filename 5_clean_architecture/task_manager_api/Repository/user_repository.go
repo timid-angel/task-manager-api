@@ -2,16 +2,16 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"net/mail"
-	"os"
 	"strings"
 	domain "task_manager_api/Domain"
+	infrastructure "task_manager_api/Infrastructure"
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type UserRepository struct {
@@ -99,12 +99,11 @@ func (uR *UserRepository) CreateUser(c context.Context, user domain.User) domain
 	}
 
 	// hash the password before storing
-	hashedPwd, hashErr := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	hashErr := infrastructure.HashUserPassword(&user)
 	if hashErr != nil {
-		return domain.UserError{Message: "Internal server error: " + hashErr.Error(), Code: domain.ERR_INTERNAL_SERVER}
+		return hashErr
 	}
 
-	user.Password = string(hashedPwd)
 	_, err := uR.Collection.InsertOne(c, user)
 	if err != nil {
 		return domain.UserError{Message: "Internal server error: " + err.Error(), Code: domain.ERR_INTERNAL_SERVER}
@@ -134,21 +133,14 @@ func (uR *UserRepository) ValidateAndGetToken(c context.Context, user domain.Use
 	}
 
 	// compare the incoming password and the stored (previously hashed) password
-	compErr := bcrypt.CompareHashAndPassword([]byte(storedUser.Password), []byte(user.Password))
-	if compErr != nil {
-		return "", domain.UserError{Message: "Incorrect password", Code: domain.ERR_UNAUTHORIZED}
+	pwErr := infrastructure.ValidatePassword(&storedUser, &user)
+	if pwErr != nil {
+		return "", pwErr
 	}
 
 	// signs token with the secret token in the env variables
-	jwtSecret := []byte(os.Getenv("JWT_SECRET_TOKEN"))
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"username":  user.Username,
-		"expiresAt": time.Now().Add(time.Hour * 2),
-	})
-	jwtToken, signingErr := token.SignedString(jwtSecret)
-	if signingErr != nil {
-		return "", domain.UserError{Message: "internal server error: " + signingErr.Error(), Code: domain.ERR_INTERNAL_SERVER}
-	}
-
-	return jwtToken, nil
+	tkLifespan := time.Minute * time.Duration(viper.GetInt("TOKEN_LIFESPAN_MINUTES"))
+	jwtSecret := viper.GetString("SECRET_TOKEN")
+	fmt.Println(user.Role)
+	return infrastructure.SignJWTWithPayload(storedUser.Username, storedUser.Role, tkLifespan, jwtSecret)
 }

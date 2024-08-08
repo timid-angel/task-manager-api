@@ -3,9 +3,10 @@ package router
 import (
 	"fmt"
 	"task_manager_api/Delivery/controllers"
+	domain "task_manager_api/Domain"
+	infrastructure "task_manager_api/Infrastructure"
 	repository "task_manager_api/Repository"
 	usecase "task_manager_api/Usecase"
-	middlewares "task_manager_api/middleware"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -23,11 +24,11 @@ func CreateRouter(port int, db *mongo.Database) {
 	// task API
 	taskRouter := router.Group("/tasks")
 	timeout := viper.GetInt("TIMEOUT")
-	NewTaskController(time.Duration(timeout)*time.Second, db.Collection(viper.GetString("tasks")), taskRouter)
+	NewTaskController(time.Duration(timeout)*time.Second, db.Collection(domain.CollectionTasks), taskRouter)
 
 	// user registeration and login
 	authRouter := router.Group("")
-	NewAuthController(time.Duration(timeout)*time.Second, db.Collection(viper.GetString("users")), authRouter)
+	NewAuthController(time.Duration(timeout)*time.Second, db.Collection(domain.CollectionUsers), authRouter)
 
 	router.Run(fmt.Sprintf(":%v", port))
 }
@@ -45,9 +46,9 @@ func NewTaskController(timeout time.Duration, collection *mongo.Collection, grou
 
 	group.GET("", taskController.GetAll)
 	group.GET("/:id", taskController.GetOne)
-	group.POST("/tasks", middlewares.AuthMiddlewareWithRoles([]string{"user", "admin"}), taskController.Create)
-	group.PUT("/tasks/:id", middlewares.AuthMiddlewareWithRoles([]string{"user", "admin"}), taskController.Update)
-	group.DELETE("/tasks/:id", middlewares.AuthMiddlewareWithRoles([]string{"admin"}), taskController.Delete)
+	group.POST("", infrastructure.AuthMiddlewareWithRoles([]string{"user", "admin"}), taskController.Create)
+	group.PUT(":id", infrastructure.AuthMiddlewareWithRoles([]string{"user", "admin"}), taskController.Update)
+	group.DELETE(":id", infrastructure.AuthMiddlewareWithRoles([]string{"admin"}), taskController.Delete)
 }
 
 func NewAuthController(timeout time.Duration, collection *mongo.Collection, group *gin.RouterGroup) {
