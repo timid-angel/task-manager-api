@@ -1,0 +1,68 @@
+{
+	"info": {
+		"_postman_id": "6dea1b59-bdb6-476b-9761-a9485ebef1f7",
+		"name": "User Auth",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31638773"
+	},
+	"item": [
+		{
+			"name": "Signup",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"natms3@gmail.com\",\n    \"password\": \"this is a very bad password\",\n    \"username\": \"kysk1\",\n    \"role\": \"user\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/signup",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"signup"
+					]
+				},
+				"description": "The `POST /signup` endpoint is used to create a new user account. The request should include the user's email, password, username, and role in the request body.\n\n### Request Body\n\n- `email` (string, required): The email address of the user.\n    \n- `password` (string, required): The password for the user account.\n    \n- `username` (string, required): The username chosen by the user.\n    \n- `role` (string, required): The role or type of account being created.\n    \n\n### Response\n\nThe response of this request is a JSON schema representing the structure of the response data. The specific properties and their types will be defined in the JSON schema.\n\nExample JSON Schema:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"userId\": {\n      \"type\": \"string\"\n    },\n    \"username\": {\n      \"type\": \"string\"\n    },\n    \"email\": {\n      \"type\": \"string\"\n    },\n    \"role\": {\n      \"type\": \"string\"\n    }\n  }\n}\n\n ```"
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"kysk\",\n    \"password\": \"this is a very bad password\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"login"
+					]
+				},
+				"description": "### Login Endpoint\n\nThis endpoint allows users to authenticate and obtain a token for accessing protected resources.\n\n#### Request\n\n- Method: POST\n    \n- URL: `http://localhost:8080/login`\n    \n- Body:\n    \n    - `username` (text, required): The username of the user.\n        \n    - `password` (text, required): The password of the user.\n        \n\n#### Response\n\nThe response is in JSON format with the following schema:\n\n``` json\n{\n    \"type\": \"object\",\n    \"properties\": {\n        \"message\": {\n            \"type\": \"string\"\n        },\n        \"token\": {\n            \"type\": \"string\"\n        }\n    }\n}\n\n ```\n\n- Status: 200 OK\n    \n- Content-Type: application/json\n    \n- `message`: A message indicating the result of the login attempt.\n    \n- `token`: A token for accessing protected resources."
+			},
+			"response": []
+		}
+	]
+}
