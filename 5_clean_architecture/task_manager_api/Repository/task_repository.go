@@ -8,11 +8,12 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+/* Implements the TaskRespositoryInterface defined in `domain`*/
 type TaskRepository struct {
 	Collection *mongo.Collection
 }
 
-// retrieves all the tasks in the db
+/* retrieves all the tasks in the db */
 func (tR *TaskRepository) GetAllTasks(c context.Context) ([]domain.Task, domain.CodedError) {
 	cursor, queryErr := tR.Collection.Find(c, bson.D{{}})
 	if queryErr != nil {
@@ -29,7 +30,7 @@ func (tR *TaskRepository) GetAllTasks(c context.Context) ([]domain.Task, domain.
 	return tasks, nil
 }
 
-// retrieves the task associated with the provided id if it exists
+/* retrieves the task associated with the provided id if it exists */
 func (tR *TaskRepository) GetTaskByID(c context.Context, taskID string) (domain.Task, domain.CodedError) {
 	var task domain.Task
 	result := tR.Collection.FindOne(c, bson.D{{Key: "id", Value: taskID}})
@@ -45,17 +46,8 @@ func (tR *TaskRepository) GetTaskByID(c context.Context, taskID string) (domain.
 	return task, nil
 }
 
-// adds the provided task to the database
+/* adds the provided task to the database */
 func (tR *TaskRepository) AddTask(c context.Context, newTask domain.Task) domain.CodedError {
-	result := tR.Collection.FindOne(c, bson.D{{Key: "id", Value: newTask.ID}})
-	if result.Err() == nil {
-		return domain.TaskError{Message: "Task with the provided ID already exists", Code: domain.ERR_BAD_REQUEST}
-	}
-
-	if result.Err().Error() != mongo.ErrNoDocuments.Error() {
-		return domain.TaskError{Message: "Internal server error: " + result.Err().Error(), Code: domain.ERR_INTERNAL_SERVER}
-	}
-
 	_, err := tR.Collection.InsertOne(c, newTask)
 	if err != nil {
 		return domain.TaskError{Message: "Internal server error: " + err.Error(), Code: domain.ERR_INTERNAL_SERVER}
@@ -64,7 +56,7 @@ func (tR *TaskRepository) AddTask(c context.Context, newTask domain.Task) domain
 	return nil
 }
 
-// updates the task associated with the provided id with the parameters provided in the provided task struct
+/* updates the task associated with the provided id with the parameters provided in the provided task struct */
 func (tR *TaskRepository) UpdateTask(c context.Context, taskID string, updatedTask domain.Task) (domain.Task, domain.CodedError) {
 	var setAttributes bson.D
 	var task domain.Task
@@ -97,7 +89,7 @@ func (tR *TaskRepository) UpdateTask(c context.Context, taskID string, updatedTa
 	return newTask, nil
 }
 
-// deletes the task associated with the provided id if it exists
+/* deletes the task associated with the provided id if it exists */
 func (tR *TaskRepository) DeleteTask(c context.Context, taskID string) domain.CodedError {
 	result := tR.Collection.FindOneAndDelete(c, bson.D{{Key: "id", Value: taskID}})
 

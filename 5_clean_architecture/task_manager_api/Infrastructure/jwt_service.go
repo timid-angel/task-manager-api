@@ -9,6 +9,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+/*
+Creates and signs a JWT with the username, role and tokenLifeSpan as the
+payloads. Returns the signed token if there aren't any errors.
+*/
 func SignJWTWithPayload(username string, role string, tokenLifeSpan time.Duration, secret string) (string, domain.CodedError) {
 	jwtSecret := []byte(secret)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -24,6 +28,10 @@ func SignJWTWithPayload(username string, role string, tokenLifeSpan time.Duratio
 	return jwtToken, nil
 }
 
+/*
+Parses the JWT token with the HMAC signing method and returns a pointer
+to a jwt.Token struct if the token is valid and not tampered with.
+*/
 func ValidateAndParseToken(rawToken string) (*jwt.Token, error) {
 	token, err := jwt.Parse(rawToken, func(t *jwt.Token) (interface{}, error) {
 		_, ok := t.Method.(*jwt.SigningMethodHMAC)

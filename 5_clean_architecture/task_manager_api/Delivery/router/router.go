@@ -33,6 +33,11 @@ func CreateRouter(port int, db *mongo.Database) {
 	router.Run(fmt.Sprintf(":%v", port))
 }
 
+/*
+Attaches to the provided router group all the task endpoints with the
+appropriate auth middleware configurations and creates all the task controller
+that provides the handlers for the endpoints
+*/
 func NewTaskController(timeout time.Duration, collection *mongo.Collection, group *gin.RouterGroup) {
 	taskUsecase := usecase.TaskUsecase{
 		TaskRepository: &repository.TaskRepository{
@@ -51,6 +56,10 @@ func NewTaskController(timeout time.Duration, collection *mongo.Collection, grou
 	group.DELETE(":id", infrastructure.AuthMiddlewareWithRoles([]string{"admin"}), taskController.Delete)
 }
 
+/*
+Attaches the `/login` and `/signup` routes along with the controller
+that provides the handlers for those endpoints
+*/
 func NewAuthController(timeout time.Duration, collection *mongo.Collection, group *gin.RouterGroup) {
 	authUsecase := usecase.UserUsecase{
 		UserRespository: &repository.UserRepository{

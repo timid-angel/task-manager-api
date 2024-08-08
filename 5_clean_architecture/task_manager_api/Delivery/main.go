@@ -11,6 +11,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+/*
+Connects to the mongoDB instance specified in with the connectionString
+and returns a pointer to the `mongoClient`.
+*/
 func ConnectDB(connectionString string) (*mongo.Client, error) {
 	// obtain the db connection string from the environment variables
 	if connectionString == "" {
@@ -32,6 +36,10 @@ func ConnectDB(connectionString string) (*mongo.Client, error) {
 	return client, nil
 }
 
+/*
+Verifies that all the required environment variables are present in the
+configured `.env` location.
+*/
 func CheckEnvironmentVariables() error {
 	switch {
 	case viper.GetString("DB_ADDRESS") == "":

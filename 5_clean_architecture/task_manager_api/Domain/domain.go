@@ -7,6 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+/*
+Definitions of the collection names and error codes that are
+independent of the external environment.
+*/
 const (
 	CollectionTasks     = "tasks"
 	CollectionUsers     = "users"
@@ -89,6 +93,11 @@ type User struct {
 	Role     string `json:"role"`
 }
 
+/*
+The definition of the Task usecase that handles all the business and
+application logic along with any input validation regarding the task
+resource in the API.
+*/
 type TaskUsecaseInterface interface {
 	GetAllTasks(c context.Context) ([]Task, CodedError)
 	GetTaskByID(c context.Context, taskID string) (Task, CodedError)
@@ -97,6 +106,11 @@ type TaskUsecaseInterface interface {
 	DeleteTask(c context.Context, taskID string) CodedError
 }
 
+/*
+The definition of the Task respository that interacts directly with
+the database and creates an interface between the usecase and any
+underlying data
+*/
 type TaskRepositoryInterface interface {
 	GetAllTasks(c context.Context) ([]Task, CodedError)
 	GetTaskByID(c context.Context, taskID string) (Task, CodedError)
@@ -105,14 +119,30 @@ type TaskRepositoryInterface interface {
 	DeleteTask(c context.Context, taskID string) CodedError
 }
 
+/*
+The definition of the User usecase that handles all the business and
+application logic along with any input validation regarding the users
+and any related security protocols that are applied for the authentication
+and authorization system.
+*/
 type UserUsecaseInterface interface {
 	CreateUser(c context.Context, user User) CodedError
 	ValidateAndGetToken(c context.Context, user User) (string, CodedError)
 }
 
+/*
+The definition of the User respository that interacts directly with
+the database and creates an interface between the usecase and any
+underlying data
+*/
 type UserRepositoryInterface interface {
 	CreateUser(c context.Context, user User) CodedError
-	ValidateAndGetToken(c context.Context, user User) (string, CodedError)
+	CheckDuplicate(c context.Context, key string, value interface{}, errorMessage string) CodedError
+	GetByUsername(c context.Context, username string) (User, CodedError)
 }
 
+/*
+The definition of the response object of the API. (uses the standard
+gin.H object)
+*/
 type Response gin.H
