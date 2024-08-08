@@ -30,6 +30,7 @@ func (suite *taskRespositorySuite) SetupSuite() {
 
 	databse := client.Database(viper.GetString("TEST_DB_NAME"))
 	collection := databse.Collection("tasks")
+	collection.DeleteMany(context.TODO(), bson.D{{}})
 	suite.collection = collection
 	SetupTaskCollection(suite.collection)
 	suite.TaskRepository = &repository.TaskRepository{Collection: collection}
@@ -160,7 +161,7 @@ func (suite *taskRespositorySuite) TestDeleteTask() {
 	suite.Error(err, "deleted task not found")
 }
 
-func TestSuite(t *testing.T) {
+func TestTaskRepositorySuite(t *testing.T) {
 	viper.SetConfigFile("../.env")
 	viper.ReadInConfig()
 

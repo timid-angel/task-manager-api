@@ -42,7 +42,11 @@ appropriate auth middleware configurations and creates all the task controller
 that provides the handlers for the endpoints
 */
 func NewTaskController(timeout time.Duration, collection *mongo.Collection, group *gin.RouterGroup) {
-	collection.Indexes().CreateOne(context.TODO(), mongo.IndexModel{Keys: bson.E{Key: "id", Value: 1}, Options: options.Index().SetUnique(true)})
+	_, err := collection.Indexes().CreateOne(context.TODO(), mongo.IndexModel{Keys: bson.D{{Key: "id", Value: 1}}, Options: options.Index().SetUnique(true)})
+	if err != nil {
+		fmt.Println("\n\n Error " + err.Error())
+	}
+
 	taskUsecase := usecase.TaskUsecase{
 		TaskRepository: &repository.TaskRepository{
 			Collection: collection,
@@ -65,6 +69,16 @@ Attaches the `/login` and `/signup` routes along with the controller
 that provides the handlers for those endpoints
 */
 func NewAuthController(timeout time.Duration, collection *mongo.Collection, group *gin.RouterGroup) {
+	_, err := collection.Indexes().CreateOne(context.TODO(), mongo.IndexModel{Keys: bson.D{{Key: "email", Value: 1}}, Options: options.Index().SetUnique(true)})
+	if err != nil {
+		fmt.Println("\n\n Error " + err.Error())
+	}
+
+	_, err = collection.Indexes().CreateOne(context.TODO(), mongo.IndexModel{Keys: bson.D{{Key: "username", Value: 1}}, Options: options.Index().SetUnique(true)})
+	if err != nil {
+		fmt.Println("\n\n Error " + err.Error())
+	}
+
 	authUsecase := usecase.UserUsecase{
 		UserRespository: &repository.UserRepository{
 			Collection: collection,
