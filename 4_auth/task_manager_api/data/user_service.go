@@ -162,3 +162,17 @@ func ValidateAndGetToken(user models.User) (string, CodedError) {
 
 	return jwtToken, nil
 }
+
+/* Promotes an account with role `user` to role `admin` */
+func PromoteUser(userID string) CodedError {
+	result := UserCollection.FindOneAndUpdate(context.TODO(), bson.D{{Key: "id", Value: userID}}, bson.D{{Key: "role", Value: "admin"}})
+	if result.Err() != nil && result.Err().Error() == mongo.ErrNoDocuments.Error() {
+		return UserError{message: "error: user not found", code: 404}
+	}
+
+	if result.Err() != nil {
+		return UserError{message: "error: " + result.Err().Error(), code: 500}
+	}
+
+	return nil
+}
