@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
-	"github.com/spf13/viper"
 )
 
 func MiddlewareError(c *gin.Context, statusCode int, message string) {
@@ -26,7 +25,7 @@ WORKFLOW:
   - Checks the role of the user associated with the token
   - Calls `c.Next()` if the querying user has permission to access the endpoint
 */
-func AuthMiddlewareWithRoles(validRoles []string) gin.HandlerFunc {
+func AuthMiddlewareWithRoles(validRoles []string, secret string, ValidateToken func(string, string) (*jwt.Token, error)) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// obtain token from the request header
 		authHeader := c.GetHeader("Authorization")
@@ -42,7 +41,7 @@ func AuthMiddlewareWithRoles(validRoles []string) gin.HandlerFunc {
 		}
 
 		// parses token with the correct signing method and checks for errors and token validity
-		token, validErr := ValidateAndParseToken(headerSegments[1], viper.GetString("SECRET_TOKEN"))
+		token, validErr := ValidateToken(headerSegments[1], secret)
 		if validErr != nil {
 			MiddlewareError(c, 401, validErr.Error())
 			return

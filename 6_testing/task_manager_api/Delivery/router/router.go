@@ -49,11 +49,13 @@ func NewTaskController(timeout time.Duration, collection *mongo.Collection, grou
 		TaskUsecase: &taskUsecase,
 	}
 
-	group.GET("", infrastructure.AuthMiddlewareWithRoles([]string{"user", "admin"}), taskController.GetAll)
-	group.GET("/:id", infrastructure.AuthMiddlewareWithRoles([]string{"user", "admin"}), taskController.GetOne)
-	group.POST("", infrastructure.AuthMiddlewareWithRoles([]string{"admin"}), taskController.Create)
-	group.PUT("/:id", infrastructure.AuthMiddlewareWithRoles([]string{"admin"}), taskController.Update)
-	group.DELETE("/:id", infrastructure.AuthMiddlewareWithRoles([]string{"admin"}), taskController.Delete)
+	secret := viper.GetString("SECRET_TOKEN")
+	validateToken := infrastructure.ValidateAndParseToken
+	group.GET("", infrastructure.AuthMiddlewareWithRoles([]string{"user", "admin"}, secret, validateToken), taskController.GetAll)
+	group.GET("/:id", infrastructure.AuthMiddlewareWithRoles([]string{"user", "admin"}, secret, validateToken), taskController.GetOne)
+	group.POST("", infrastructure.AuthMiddlewareWithRoles([]string{"admin"}, secret, validateToken), taskController.Create)
+	group.PUT("/:id", infrastructure.AuthMiddlewareWithRoles([]string{"admin"}, secret, validateToken), taskController.Update)
+	group.DELETE("/:id", infrastructure.AuthMiddlewareWithRoles([]string{"admin"}, secret, validateToken), taskController.Delete)
 }
 
 /*
