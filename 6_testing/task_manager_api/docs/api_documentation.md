@@ -9,6 +9,48 @@ go run ./Delivery
 
 To check whether the API has started running successfully, make a request to `/ping`.
 
+## Features
+### Task API
+- Get all tasks
+- Get tasks by ID
+- Create new tasks
+- Update tasks by ID
+- Delete tasks by ID
+
+### Auth
+- Signup User using username and email
+- Login User
+
+## Project Structure
+> Delivery: Contains files related to the delivery layer, handling incoming requests and responses.
+- `main.go`: Sets up the HTTP server, initializes dependencies, and defines the routing configuration.
+- `controllers/controllers.go`: Handles incoming HTTP requests and invokes the appropriate use case methods.
+- `routers/routers.go`: Sets up the routes and initializes the Gin router.
+
+
+> Domain/: Defines the core business entities and logic.
+
+- `domain.go`: Contains the core business entities such as Task and User structs, the interface definitions for controllers, usecases and repositories along with a customer `error` model used to communicate errors throughout the application
+
+> Infrastructure/: Implements external dependencies and services.
+- `auth_middleWare.go`: Middleware to handle authentication and authorization using JWT tokens.
+- `jwt_service.go`: Functions to generate and validate JWT tokens.
+- `password_service.go`: Functions for hashing and comparing passwords to ensure secure storage of user credentials.
+
+> Repositories/: Abstracts the data access logic.
+- task_repository.go: Interface and implementation for task data access operations.
+
+- user_repository.go: Interface and implementation for user data access operations.
+
+> Usecases/: Contains the application-specific business rules.
+- task_usecases.go: Implements the use cases related to tasks, such as creating, updating, retrieving, and deleting tasks.
+- user_usecases.go: Implements the use cases related to users, such as registering, logging in.
+
+### Tests and Mocks
+> Tests/: Contains all the unit tests for the various components of the application
+
+> Mocks/: Contains all the mocked components used in the tests.
+
 ## Enviornment Variables
 
 **[IMPORTANT]** There has been a change in how the environment variables are organized. The project now uses the `.env` file located in the root directory with the help of the `viper` package for managing these constants. Additionally, there are additional variables that need to be declared.
@@ -17,6 +59,7 @@ The environment variables are as follows:
 - `DB_ADDRESS` - connection string of monogoDB
 - `SECRET_TOKEN` - used to sign and validate json-web-tokens
 - `DB_NAME` - the name of the database instance of the provided connection
+- `TEST_DB_NAME` - **[TESTING]** the name of the database instance on which all repository tests will be performed.
 - `PORT` - port to run the API on
 - `TIMEOUT` - time to wait for operations (in seconds)
 - `TOKEN_LIFESPAN_MINUTES` - sets the lifespan of json-web-tokens (in minutes)
@@ -25,7 +68,8 @@ The environment variables are as follows:
 ```
 DB_ADDRESS=mongodb://localhost:27017
 SECRET_TOKEN=long_random_text 
-DB_NAME=task_test
+DB_NAME=task_API
+TEST_DB_NAME=task_API_test
 PORT=8080
 TIMEOUT=1
 TOKEN_LIFESPAN_MINUTES=30
@@ -41,6 +85,24 @@ The authenitcation system is based on JWT. The token will be sent to the client 
 curl --location --request DELETE 'http://localhost:8080/tasks/3' \
 --header 'Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imt5c2sifQ.pIb58jAfa9Rd3u38AzTLdtU_hGR624P6by2epR_baMM'
 ```
+
+## Running Tests
+To run the tests, make sure to first go to the `Test/` directory. **The `repository` tests WILL NOT pass if a valid test database has been setup. Make sure to check the environment variables section for more information on how to provide a test DB.**
+
+To run all the tests:
+```bash
+go test
+```
+
+Each file contains a suite that groups up all the related tests. To run one of suites contained in one of the files, run this command:
+```bash
+go test -run file_name_test.go NAME_OF_THE_SUITE
+```
+With timeout:
+```bash
+go test -timeout 30s -run file_name_test.go NAME_OF_THE_SUITE
+```
+The suites are usually the functions defined last, accepting a `*testing.T` as a parameter and running the test suite.
 
 # Auth
 **Caution:** The API allows the creation of admins without any authorization. This has been done to facilitate proper demonstration. Ideally, the admins would be created before deployment and the route for creating admins would be disabled entirely.
