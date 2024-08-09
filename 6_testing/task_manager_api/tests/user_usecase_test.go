@@ -34,13 +34,13 @@ func (suite *userUsecaseSuite) SetupSuite() {
 	}
 
 	// mocks HashUserPassword to return no errors and make no changes to the user struct
-	suite.usecase.HashUserPassword = func(user *domain.User) domain.CodedError {
-		return nil
+	suite.usecase.HashUserPassword = func(password string) (string, domain.CodedError) {
+		return password, nil
 	}
 
 	// mocks ValidatePassword to return a nil error only when the password is "valid_password"
-	suite.usecase.ValidatePassword = func(storedUser *domain.User, currUser *domain.User) domain.CodedError {
-		if storedUser.Password == "valid_password" {
+	suite.usecase.ValidatePassword = func(storedPassword string, currentPassword string) domain.CodedError {
+		if storedPassword == "valid_password" {
 			return nil
 		}
 

@@ -14,9 +14,9 @@ import (
 type UserUsecase struct {
 	UserRespository    domain.UserRepositoryInterface
 	Timeout            time.Duration
-	HashUserPassword   func(user *domain.User) domain.CodedError
+	HashUserPassword   func(password string) (string, domain.CodedError)
 	SignJWTWithPayload func(username string, role string, tokenLifeSpan time.Duration, secret string) (string, domain.CodedError)
-	ValidatePassword   func(storedUser *domain.User, currUser *domain.User) domain.CodedError
+	ValidatePassword   func(storedPassword string, currPassword string) domain.CodedError
 }
 
 /* Validates the user data with business rules and calls the create function in the repository */
@@ -61,11 +61,12 @@ func (uC *UserUsecase) CreateUser(c context.Context, user domain.User) domain.Co
 	}
 
 	// hash the password before storing
-	hashErr := uC.HashUserPassword(&user)
+	hashedPwd, hashErr := uC.HashUserPassword(user.Password)
 	if hashErr != nil {
 		return hashErr
 	}
 
+	user.Password = hashedPwd
 	return uC.UserRespository.CreateUser(ctx, user)
 }
 
@@ -83,7 +84,7 @@ func (uC *UserUsecase) ValidateAndGetToken(c context.Context, user domain.User) 
 	}
 
 	// compare the incoming password and the stored (previously hashed) password
-	pwErr := uC.ValidatePassword(&storedUser, &user)
+	pwErr := uC.ValidatePassword(storedUser.Password, user.Password)
 	if pwErr != nil {
 		return "", pwErr
 	}

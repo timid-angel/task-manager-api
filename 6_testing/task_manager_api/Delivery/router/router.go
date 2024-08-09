@@ -84,7 +84,7 @@ func NewAuthController(timeout time.Duration, collection *mongo.Collection, grou
 			Collection: collection,
 		},
 		Timeout:            timeout,
-		HashUserPassword:   infrastructure.HashUserPassword,
+		HashUserPassword:   infrastructure.HashPassword,
 		SignJWTWithPayload: infrastructure.SignJWTWithPayload,
 		ValidatePassword:   infrastructure.ValidatePassword,
 	}

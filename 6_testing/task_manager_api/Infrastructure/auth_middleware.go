@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
+	"github.com/spf13/viper"
 )
 
 func MiddlewareError(c *gin.Context, statusCode int, message string) {
@@ -41,7 +42,7 @@ func AuthMiddlewareWithRoles(validRoles []string) gin.HandlerFunc {
 		}
 
 		// parses token with the correct signing method and checks for errors and token validity
-		token, validErr := ValidateAndParseToken(headerSegments[1])
+		token, validErr := ValidateAndParseToken(headerSegments[1], viper.GetString("SECRET_TOKEN"))
 		if validErr != nil {
 			MiddlewareError(c, 401, validErr.Error())
 			return
