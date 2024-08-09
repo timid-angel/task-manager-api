@@ -49,10 +49,10 @@ func NewTaskController(timeout time.Duration, collection *mongo.Collection, grou
 		TaskUsecase: &taskUsecase,
 	}
 
-	group.GET("", taskController.GetAll)
-	group.GET("/:id", taskController.GetOne)
-	group.POST("", infrastructure.AuthMiddlewareWithRoles([]string{"user", "admin"}), taskController.Create)
-	group.PUT(":id", infrastructure.AuthMiddlewareWithRoles([]string{"user", "admin"}), taskController.Update)
+	group.GET("", infrastructure.AuthMiddlewareWithRoles([]string{"user", "admin"}), taskController.GetAll)
+	group.GET("/:id", infrastructure.AuthMiddlewareWithRoles([]string{"user", "admin"}), taskController.GetOne)
+	group.POST("", infrastructure.AuthMiddlewareWithRoles([]string{"admin"}), taskController.Create)
+	group.PUT(":id", infrastructure.AuthMiddlewareWithRoles([]string{"admin"}), taskController.Update)
 	group.DELETE(":id", infrastructure.AuthMiddlewareWithRoles([]string{"admin"}), taskController.Delete)
 }
 
