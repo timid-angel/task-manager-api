@@ -25,6 +25,10 @@ type controllerSuite struct {
 	testingServer  *httptest.Server
 }
 
+type TokenResponse struct {
+	Token string `json:"token"`
+}
+
 func (suite *controllerSuite) SetupSuite() {
 	suite.taskUsecase = new(mocks.TaskUsecaseInterface)
 	suite.userUsecase = new(mocks.UserUsecaseInterface)
@@ -37,11 +41,15 @@ func (suite *controllerSuite) SetupSuite() {
 	}
 
 	router := gin.Default()
+
 	router.GET("/tasks", suite.taskController.GetAll)
 	router.GET("/tasks/:id", suite.taskController.GetOne)
 	router.POST("/tasks", suite.taskController.Create)
 	router.PUT("/tasks/:id", suite.taskController.Update)
 	router.DELETE("/tasks/:id", suite.taskController.Delete)
+
+	router.POST("/signup", suite.userController.Signup)
+	router.POST("/login", suite.userController.Login)
 
 	suite.testingServer = httptest.NewServer(router)
 }
@@ -55,6 +63,19 @@ func (suite *controllerSuite) SetupTest() {
 
 func (suite *controllerSuite) TearDownSuite() {
 	defer suite.testingServer.Close()
+}
+
+func (suite *controllerSuite) TestGetHTTPErrorCodes() {
+	testParams := map[domain.CodedError]int{
+		domain.TaskError{Code: domain.ERR_BAD_REQUEST}:     400,
+		domain.TaskError{Code: domain.ERR_INTERNAL_SERVER}: 500,
+		domain.TaskError{Code: domain.ERR_NOT_FOUND}:       404,
+		domain.TaskError{Code: domain.ERR_UNAUTHORIZED}:    401,
+	}
+
+	for domainErr, statusCode := range testParams {
+		suite.Equal(statusCode, controllers.GetHTTPErrorCode(domainErr))
+	}
 }
 
 func (suite *controllerSuite) TestGetAllTasks_Positive() {
@@ -147,14 +168,7 @@ func (suite *controllerSuite) TestGetTaskByID_Negative() {
 }
 
 func (suite *controllerSuite) TestAdd_Positive() {
-	newTask := domain.Task{
-		ID:          "1",
-		Title:       "title",
-		Description: "description",
-		Status:      "pending",
-		DueDate:     time.Now().Round(0),
-	}
-
+	newTask := domain.Task{}
 	client := http.Client{}
 	suite.taskUsecase.On("AddTask", mock.Anything, newTask).Return(nil)
 
@@ -170,6 +184,26 @@ func (suite *controllerSuite) TestAdd_Positive() {
 
 	suite.NoError(err, "no errors in request")
 	suite.Equal(http.StatusCreated, response.StatusCode)
+	suite.taskUsecase.AssertExpectations(suite.T())
+}
+
+func (suite *controllerSuite) TestAdd_Negative() {
+	newTask := domain.Task{}
+	client := http.Client{}
+	sampleErr := domain.TaskError{Message: "msg123", Code: domain.ERR_BAD_REQUEST}
+	suite.taskUsecase.On("AddTask", mock.Anything, newTask).Return(sampleErr)
+	requestBody, err := json.Marshal(&newTask)
+	suite.NoError(err, "can not marshal struct to json")
+
+	request, _ := http.NewRequest(http.MethodPost, suite.testingServer.URL+"/tasks", bytes.NewBuffer(requestBody))
+	request.Header.Add("Content-Type", "application/json")
+	response, err := client.Do(request)
+	if response != nil {
+		defer response.Body.Close()
+	}
+
+	suite.NoError(err, "no errors in request")
+	suite.Equal(controllers.GetHTTPErrorCode(sampleErr), response.StatusCode)
 	suite.taskUsecase.AssertExpectations(suite.T())
 }
 
@@ -256,6 +290,78 @@ func (suite *controllerSuite) TestDelete_Negative() {
 
 	suite.NoError(err, "no errors in request")
 	suite.Equal(controllers.GetHTTPErrorCode(sampleErr), response.StatusCode)
+	suite.taskUsecase.AssertExpectations(suite.T())
+}
+
+func (suite *controllerSuite) TestSignup_Positive() {
+	user := domain.User{
+		Username: "lksdajf",
+		Email:    "valid@mail.com",
+		Password: "dorwssap",
+		Role:     "admin",
+	}
+
+	client := http.Client{}
+	suite.userUsecase.On("CreateUser", mock.Anything, user).Return(nil)
+
+	requestBody, err := json.Marshal(&user)
+	suite.NoError(err, "can not marshal struct to json")
+
+	request, _ := http.NewRequest(http.MethodPost, suite.testingServer.URL+"/signup", bytes.NewBuffer(requestBody))
+	request.Header.Add("Content-Type", "application/json")
+	response, err := client.Do(request)
+	if response != nil {
+		defer response.Body.Close()
+	}
+
+	suite.NoError(err, "no errors in request")
+	suite.Equal(http.StatusCreated, response.StatusCode)
+	suite.taskUsecase.AssertExpectations(suite.T())
+}
+
+func (suite *controllerSuite) TestSignup_Negative() {
+	user := domain.User{}
+	client := http.Client{}
+	sampleErr := domain.TaskError{Message: "msg123", Code: domain.ERR_INTERNAL_SERVER}
+	suite.userUsecase.On("CreateUser", mock.Anything, user).Return(sampleErr)
+
+	requestBody, err := json.Marshal(&user)
+	suite.NoError(err, "can not marshal struct to json")
+
+	request, _ := http.NewRequest(http.MethodPost, suite.testingServer.URL+"/signup", bytes.NewBuffer(requestBody))
+	request.Header.Add("Content-Type", "application/json")
+	response, err := client.Do(request)
+	if response != nil {
+		defer response.Body.Close()
+	}
+
+	suite.NoError(err, "no errors in request")
+	suite.Equal(controllers.GetHTTPErrorCode(sampleErr), response.StatusCode)
+	suite.taskUsecase.AssertExpectations(suite.T())
+}
+
+func (suite *controllerSuite) TestLogin_Positive() {
+	user := domain.User{}
+	sToken := "lskad123i12.3123123sadf"
+	client := http.Client{}
+	suite.userUsecase.On("ValidateAndGetToken", mock.Anything, user).Return(sToken, nil)
+
+	requestBody, err := json.Marshal(&user)
+	suite.NoError(err, "can not marshal struct to json")
+
+	request, _ := http.NewRequest(http.MethodPost, suite.testingServer.URL+"/login", bytes.NewBuffer(requestBody))
+	request.Header.Add("Content-Type", "application/json")
+	response, err := client.Do(request)
+	if response != nil {
+		defer response.Body.Close()
+	}
+
+	suite.NoError(err, "no errors in request")
+	responseBody := TokenResponse{}
+	err = json.NewDecoder(response.Body).Decode(&responseBody)
+	suite.NoError(err, "no error during body decoding")
+	suite.Equal(sToken, responseBody.Token)
+	suite.Equal(http.StatusOK, response.StatusCode)
 	suite.taskUsecase.AssertExpectations(suite.T())
 }
 
