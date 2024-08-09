@@ -11,6 +11,10 @@ func GetWordCount(s string) map[string]int {
 	wordCounter := map[string]int{}
 	words := strings.Split(s, " ")
 	for _, word := range words {
+		if word == "" {
+			continue
+		}
+
 		word = strings.ToLower(word)
 		for _, punct := range punctuations {
 			word = strings.ReplaceAll(word, punct, "")
@@ -43,8 +47,10 @@ func IsPalindrome(s string) bool {
 func main() {
 	f1t1 := "the red hare jumped over the sly fox"
 	f1t2 := "Hello hello hello? he:llo"
+	f1t3 := "Hello    he.llo    hello;."
 	fmt.Printf("Expected len 7, got len %v\n", len(GetWordCount(f1t1)))
 	fmt.Printf("Expected len 1, got len %v\n", len(GetWordCount(f1t2)))
+	fmt.Printf("Expected len 1, got len %v\n", len(GetWordCount(f1t3)))
 
 	f2t1 := "this is not a palindrome   "
 	f2t2 := " this    Siht   "
