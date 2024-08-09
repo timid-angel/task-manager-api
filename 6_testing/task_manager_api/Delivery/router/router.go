@@ -60,8 +60,8 @@ func NewTaskController(timeout time.Duration, collection *mongo.Collection, grou
 	group.GET("", taskController.GetAll)
 	group.GET("/:id", taskController.GetOne)
 	group.POST("", infrastructure.AuthMiddlewareWithRoles([]string{"user", "admin"}), taskController.Create)
-	group.PUT(":id", infrastructure.AuthMiddlewareWithRoles([]string{"user", "admin"}), taskController.Update)
-	group.DELETE(":id", infrastructure.AuthMiddlewareWithRoles([]string{"admin"}), taskController.Delete)
+	group.PUT("/:id", infrastructure.AuthMiddlewareWithRoles([]string{"user", "admin"}), taskController.Update)
+	group.DELETE("/:id", infrastructure.AuthMiddlewareWithRoles([]string{"admin"}), taskController.Delete)
 }
 
 /*
@@ -83,7 +83,10 @@ func NewAuthController(timeout time.Duration, collection *mongo.Collection, grou
 		UserRespository: &repository.UserRepository{
 			Collection: collection,
 		},
-		Timeout: timeout,
+		Timeout:            timeout,
+		HashUserPassword:   infrastructure.HashUserPassword,
+		SignJWTWithPayload: infrastructure.SignJWTWithPayload,
+		ValidatePassword:   infrastructure.ValidatePassword,
 	}
 	authController := controllers.UserController{
 		UserUsecase: &authUsecase,

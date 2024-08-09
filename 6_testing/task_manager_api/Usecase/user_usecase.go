@@ -5,7 +5,6 @@ import (
 	"net/mail"
 	"strings"
 	domain "task_manager_api/Domain"
-	infrastructure "task_manager_api/Infrastructure"
 	"time"
 
 	"github.com/spf13/viper"
@@ -13,8 +12,11 @@ import (
 
 /* Implements the UserUsecaseInterface defined in `domain`*/
 type UserUsecase struct {
-	UserRespository domain.UserRepositoryInterface
-	Timeout         time.Duration
+	UserRespository    domain.UserRepositoryInterface
+	Timeout            time.Duration
+	HashUserPassword   func(user *domain.User) domain.CodedError
+	SignJWTWithPayload func(username string, role string, tokenLifeSpan time.Duration, secret string) (string, domain.CodedError)
+	ValidatePassword   func(storedUser *domain.User, currUser *domain.User) domain.CodedError
 }
 
 /* Validates the user data with business rules and calls the create function in the repository */
@@ -22,7 +24,7 @@ func (uC *UserUsecase) CreateUser(c context.Context, user domain.User) domain.Co
 	ctx, cancel := context.WithTimeout(c, uC.Timeout)
 	defer cancel()
 
-	user.Username = strings.ToLower(strings.TrimSpace(user.Username))
+	user.Username = strings.ReplaceAll(strings.ToLower(strings.TrimSpace(user.Username)), " ", "")
 	user.Email = strings.ToLower(strings.TrimSpace(user.Email))
 	user.Role = strings.ToLower(strings.TrimSpace(user.Role))
 
@@ -59,7 +61,7 @@ func (uC *UserUsecase) CreateUser(c context.Context, user domain.User) domain.Co
 	}
 
 	// hash the password before storing
-	hashErr := infrastructure.HashUserPassword(&user)
+	hashErr := uC.HashUserPassword(&user)
 	if hashErr != nil {
 		return hashErr
 	}
@@ -81,7 +83,7 @@ func (uC *UserUsecase) ValidateAndGetToken(c context.Context, user domain.User) 
 	}
 
 	// compare the incoming password and the stored (previously hashed) password
-	pwErr := infrastructure.ValidatePassword(&storedUser, &user)
+	pwErr := uC.ValidatePassword(&storedUser, &user)
 	if pwErr != nil {
 		return "", pwErr
 	}
@@ -89,5 +91,5 @@ func (uC *UserUsecase) ValidateAndGetToken(c context.Context, user domain.User) 
 	// signs token with the secret token in the env variables
 	tkLifespan := time.Minute * time.Duration(viper.GetInt("TOKEN_LIFESPAN_MINUTES"))
 	jwtSecret := viper.GetString("SECRET_TOKEN")
-	return infrastructure.SignJWTWithPayload(storedUser.Username, storedUser.Role, tkLifespan, jwtSecret)
+	return uC.SignJWTWithPayload(storedUser.Username, storedUser.Role, tkLifespan, jwtSecret)
 }
