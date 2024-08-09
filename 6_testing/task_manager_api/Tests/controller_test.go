@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"task_manager_api/Delivery/controllers"
 	domain "task_manager_api/Domain"
-	"task_manager_api/mocks"
+	mocks "task_manager_api/Mocks"
 	"testing"
 	"time"
 

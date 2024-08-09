@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 	domain "task_manager_api/Domain"
+	mocks "task_manager_api/Mocks"
 	usecase "task_manager_api/Usecase"
-	"task_manager_api/mocks"
 	"testing"
 	"time"
 
