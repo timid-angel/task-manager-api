@@ -94,6 +94,18 @@ type User struct {
 }
 
 /*
+The definition of the Task controller that encompasses all the handlers
+for all the task-related endpoints
+*/
+type TaskControllerInterface interface {
+	GetAll(c *gin.Context)
+	GetOne(c *gin.Context)
+	Create(c *gin.Context)
+	Update(c *gin.Context)
+	Delete(c *gin.Context)
+}
+
+/*
 The definition of the Task usecase that handles all the business and
 application logic along with any input validation regarding the task
 resource in the API.
@@ -117,6 +129,15 @@ type TaskRepositoryInterface interface {
 	AddTask(c context.Context, newTask Task) CodedError
 	UpdateTask(c context.Context, taskID string, updatedTask Task) (Task, CodedError)
 	DeleteTask(c context.Context, taskID string) CodedError
+}
+
+/*
+The definition of the User controller that encompasses all the handlers
+for all the user-related endpoints
+*/
+type UserControllerInterface interface {
+	Signup(c *gin.Context)
+	Login(c *gin.Context)
 }
 
 /*

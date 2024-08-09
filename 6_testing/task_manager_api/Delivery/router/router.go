@@ -1,7 +1,6 @@
 package router
 
 import (
-	"context"
 	"fmt"
 	"task_manager_api/Delivery/controllers"
 	domain "task_manager_api/Domain"
@@ -12,9 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 /*
@@ -42,11 +39,6 @@ appropriate auth middleware configurations and creates all the task controller
 that provides the handlers for the endpoints
 */
 func NewTaskController(timeout time.Duration, collection *mongo.Collection, group *gin.RouterGroup) {
-	_, err := collection.Indexes().CreateOne(context.TODO(), mongo.IndexModel{Keys: bson.D{{Key: "id", Value: 1}}, Options: options.Index().SetUnique(true)})
-	if err != nil {
-		fmt.Println("\n\n Error " + err.Error())
-	}
-
 	taskUsecase := usecase.TaskUsecase{
 		TaskRepository: &repository.TaskRepository{
 			Collection: collection,
@@ -57,10 +49,10 @@ func NewTaskController(timeout time.Duration, collection *mongo.Collection, grou
 		TaskUsecase: &taskUsecase,
 	}
 
-	group.GET("", taskController.GetAll)
-	group.GET("/:id", taskController.GetOne)
-	group.POST("", infrastructure.AuthMiddlewareWithRoles([]string{"user", "admin"}), taskController.Create)
-	group.PUT("/:id", infrastructure.AuthMiddlewareWithRoles([]string{"user", "admin"}), taskController.Update)
+	group.GET("", infrastructure.AuthMiddlewareWithRoles([]string{"user", "admin"}), taskController.GetAll)
+	group.GET("/:id", infrastructure.AuthMiddlewareWithRoles([]string{"user", "admin"}), taskController.GetOne)
+	group.POST("", infrastructure.AuthMiddlewareWithRoles([]string{"admin"}), taskController.Create)
+	group.PUT("/:id", infrastructure.AuthMiddlewareWithRoles([]string{"admin"}), taskController.Update)
 	group.DELETE("/:id", infrastructure.AuthMiddlewareWithRoles([]string{"admin"}), taskController.Delete)
 }
 
@@ -69,16 +61,6 @@ Attaches the `/login` and `/signup` routes along with the controller
 that provides the handlers for those endpoints
 */
 func NewAuthController(timeout time.Duration, collection *mongo.Collection, group *gin.RouterGroup) {
-	_, err := collection.Indexes().CreateOne(context.TODO(), mongo.IndexModel{Keys: bson.D{{Key: "email", Value: 1}}, Options: options.Index().SetUnique(true)})
-	if err != nil {
-		fmt.Println("\n\n Error " + err.Error())
-	}
-
-	_, err = collection.Indexes().CreateOne(context.TODO(), mongo.IndexModel{Keys: bson.D{{Key: "username", Value: 1}}, Options: options.Index().SetUnique(true)})
-	if err != nil {
-		fmt.Println("\n\n Error " + err.Error())
-	}
-
 	authUsecase := usecase.UserUsecase{
 		UserRespository: &repository.UserRepository{
 			Collection: collection,
