@@ -123,6 +123,33 @@ func (suite *userRepositorySuite) TestGetByUsername() {
 	suite.Equal(user.Username, foundUser.Username)
 }
 
+func (suite *userRepositorySuite) TestPromoteUser_Positive() {
+	user := domain.User{
+		Username: "username12",
+		Password: "password12",
+		Email:    "mailer@mail.com",
+		Role:     "user",
+	}
+
+	err := suite.UserRepository.CreateUser(context.TODO(), user)
+	suite.NoError(err, "no error when creating account")
+
+	err = suite.UserRepository.PromoteUser(context.TODO(), user.Username)
+	suite.NoError(err, "no error when promoting user")
+
+	user, err = suite.UserRepository.GetByUsername(context.TODO(), user.Username)
+	suite.NoError(err, "no error when fetching user")
+	suite.Equal("admin", user.Role)
+}
+
+func (suite *userRepositorySuite) TestPromoteUser_Negative() {
+	username := "solitary_confinement"
+
+	err := suite.UserRepository.PromoteUser(context.TODO(), username)
+	suite.Error(err, "no error when promoting user")
+	suite.Equal(domain.ERR_NOT_FOUND, err.GetCode())
+}
+
 func TestUserRepositorySuite(t *testing.T) {
 	viper.SetConfigFile("../.env")
 	viper.ReadInConfig()

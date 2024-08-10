@@ -244,6 +244,27 @@ func (suite *userUsecaseSuite) TestValidateAndGetToken_PasswordValidation() {
 	suite.Equal(len(str), 0)
 }
 
+func (suite *userUsecaseSuite) TestPromote_Positive() {
+	username := "solitary_confinment"
+	suite.repository.On("PromoteUser", mock.Anything, username).Return(nil)
+	err := suite.usecase.Promote(context.TODO(), username)
+
+	suite.NoError(err, "no error when the username is passed")
+	suite.repository.AssertExpectations(suite.T())
+}
+
+func (suite *userUsecaseSuite) TestPromote_Negative() {
+	username := "solitary_confinment"
+	sampleErr := domain.TaskError{Message: "msg123", Code: domain.ERR_INTERNAL_SERVER}
+	suite.repository.On("PromoteUser", mock.Anything, username).Return(sampleErr)
+	err := suite.usecase.Promote(context.TODO(), username)
+
+	suite.Error(err, "error when the username is passed")
+	suite.Equal(sampleErr.Error(), err.Error())
+	suite.Equal(sampleErr.GetCode(), err.GetCode())
+	suite.repository.AssertExpectations(suite.T())
+}
+
 func TestUserUsecase(t *testing.T) {
 	viper.SetConfigFile("../.env")
 	viper.ReadInConfig()

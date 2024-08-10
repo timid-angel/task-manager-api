@@ -50,6 +50,7 @@ func (suite *controllerSuite) SetupSuite() {
 
 	router.POST("/signup", suite.userController.Signup)
 	router.POST("/login", suite.userController.Login)
+	router.PATCH("/promote/:username", suite.userController.Promote)
 
 	suite.testingServer = httptest.NewServer(router)
 }
@@ -361,6 +362,44 @@ func (suite *controllerSuite) TestLogin_Positive() {
 	err = json.NewDecoder(response.Body).Decode(&responseBody)
 	suite.NoError(err, "no error during body decoding")
 	suite.Equal(sToken, responseBody.Token)
+	suite.Equal(http.StatusOK, response.StatusCode)
+	suite.taskUsecase.AssertExpectations(suite.T())
+}
+
+func (suite *controllerSuite) TestLogin_Negative() {
+	user := domain.User{}
+	client := http.Client{}
+	sampleErr := domain.TaskError{Message: "msg123", Code: domain.ERR_INTERNAL_SERVER}
+	suite.userUsecase.On("ValidateAndGetToken", mock.Anything, user).Return("", sampleErr)
+
+	requestBody, err := json.Marshal(&user)
+	suite.NoError(err, "can not marshal struct to json")
+
+	request, _ := http.NewRequest(http.MethodPost, suite.testingServer.URL+"/login", bytes.NewBuffer(requestBody))
+	request.Header.Add("Content-Type", "application/json")
+	response, err := client.Do(request)
+	if response != nil {
+		defer response.Body.Close()
+	}
+
+	suite.NoError(err, "no errors in request")
+	suite.Equal(controllers.GetHTTPErrorCode(sampleErr), response.StatusCode)
+	suite.taskUsecase.AssertExpectations(suite.T())
+}
+
+func (suite *controllerSuite) TestPromote_Positive() {
+	username := "solitary_confinement"
+	suite.userUsecase.On("Promote", mock.Anything, username).Return(nil)
+	client := http.Client{}
+
+	request, _ := http.NewRequest(http.MethodPatch, suite.testingServer.URL+"/promote/"+username, nil)
+	request.Header.Add("Content-Type", "application/json")
+	response, err := client.Do(request)
+	if response != nil {
+		defer response.Body.Close()
+	}
+
+	suite.NoError(err, "no errors in request")
 	suite.Equal(http.StatusOK, response.StatusCode)
 	suite.taskUsecase.AssertExpectations(suite.T())
 }

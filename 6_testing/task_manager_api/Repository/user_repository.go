@@ -67,7 +67,7 @@ func (uR *UserRepository) GetByUsername(c context.Context, username string) (dom
 func (uR *UserRepository) PromoteUser(c context.Context, username string) domain.CodedError {
 	result := uR.Collection.FindOneAndUpdate(context.TODO(), bson.D{{Key: "username", Value: username}}, bson.D{{Key: "$set", Value: bson.D{{Key: "role", Value: "admin"}}}})
 	if result.Err() != nil && result.Err().Error() == mongo.ErrNoDocuments.Error() {
-		return domain.UserError{Message: "error: user not found", Code: domain.ERR_BAD_REQUEST}
+		return domain.UserError{Message: "error: user not found", Code: domain.ERR_NOT_FOUND}
 	}
 
 	if result.Err() != nil {
