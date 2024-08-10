@@ -20,6 +20,7 @@ To check whether the API has started running successfully, make a request to `/p
 ### Auth
 - Signup User using username and email
 - Login User
+- Promote User to Admin
 
 ## Project Structure
 > Delivery: Contains files related to the delivery layer, handling incoming requests and responses.
@@ -192,6 +193,33 @@ curl --location 'http://localhost:8080/login' \
 }
 ```
 
+## Promote
+
+### Authorization: Admin
+
+**METHOD: PATCH**
+
+`http://localhost:8080/promote/:username`
+
+This endpoint allows admins to promote a user specified by their unique username in the route parameters.
+
+### Response Body
+
+After a successful promote request, the response will be sent with a status code of `200`. The body will contain a JSON object with a message.
+- `message`: A message indicating the result of the request to promote a user.
+
+**Example Request (CURL):**
+```bash
+curl --location --request PATCH 'http://localhost:8080/promote/user1234' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVzQXQiOiIyMDI0LTA4LTEwVDExOjU1OjAzLjY5NTIyODAwNSswMzowMCIsInVzZXJuYW1lIjoiYWRtaW4xMjMifQ.NhVn-7QD67yoT1CQ2ibjzaVTLGuJOIxAqmUerTjDfZ0'
+```
+
+**Example Response Body:**
+```json
+{
+    "message": "Used promoted successfully"
+}
+```
 
 # Task API
 

@@ -8,6 +8,19 @@ go run .
 
 To check whether the API has started running successfully, make a request to `/ping`.
 
+## Features
+### Task API
+- Get all tasks
+- Get tasks by ID
+- Create new tasks
+- Update tasks by ID
+- Delete tasks by ID
+
+### Auth
+- Signup User using username and email
+- Login User
+- Promote User to Admin
+
 ## Enviornment Variables
 
 **[IMPORTANT]** The application uses the connection string defined in `/env.go`. To run the application, you must provide a connection string for the DB. This can either be the address of your local mongod instance or the address of an atlas cluster.
@@ -119,6 +132,34 @@ curl --location 'http://localhost:8080/login' \
 {
     "message": "User logged in successfully",
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imt5c2sifQ.pIb58jAfa9Rd3u38AzTLdtU_hGR624P6by2epR_baMM"
+}
+```
+
+## Promote
+
+### Authorization: Admin
+
+**METHOD: PATCH**
+
+`http://localhost:8080/promote/:username`
+
+This endpoint allows admins to promote a user specified by their unique username in the route parameters.
+
+### Response Body
+
+After a successful promote request, the response will be sent with a status code of `200`. The body will contain a JSON object with a message.
+- `message`: A message indicating the result of the request to promote a user.
+
+**Example Request (CURL):**
+```bash
+curl --location --request PATCH 'http://localhost:8080/promote/user1234' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVzQXQiOiIyMDI0LTA4LTEwVDExOjU1OjAzLjY5NTIyODAwNSswMzowMCIsInVzZXJuYW1lIjoiYWRtaW4xMjMifQ.NhVn-7QD67yoT1CQ2ibjzaVTLGuJOIxAqmUerTjDfZ0'
+```
+
+**Example Response Body:**
+```json
+{
+    "message": "Used promoted successfully"
 }
 ```
 

@@ -130,8 +130,8 @@ func Login(c *gin.Context) {
 
 // handler for /promote
 func Promote(c *gin.Context) {
-	userID := c.Param("id")
-	err := services.PromoteUser(userID)
+	username := c.Param("username")
+	err := services.PromoteUser(username)
 	if err != nil {
 		c.JSON(err.GetCode(), gin.H{"message": err.Error()})
 		return

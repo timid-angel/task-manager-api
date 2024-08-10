@@ -30,7 +30,7 @@ func CreateRouter(port int) {
 	// user registeration and login
 	router.POST("/signup", controllers.Signup)
 	router.POST("/login", controllers.Login)
-	router.POST("/promote", middlewares.AuthMiddlewareWithRoles([]string{"admin"}), controllers.Promote)
+	router.PATCH("/promote/:username", middlewares.AuthMiddlewareWithRoles([]string{"admin"}), controllers.Promote)
 
 	router.Run(fmt.Sprintf(":%v", port))
 }

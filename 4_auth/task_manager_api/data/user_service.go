@@ -164,8 +164,8 @@ func ValidateAndGetToken(user models.User) (string, CodedError) {
 }
 
 /* Promotes an account with role `user` to role `admin` */
-func PromoteUser(userID string) CodedError {
-	result := UserCollection.FindOneAndUpdate(context.TODO(), bson.D{{Key: "id", Value: userID}}, bson.D{{Key: "role", Value: "admin"}})
+func PromoteUser(username string) CodedError {
+	result := UserCollection.FindOneAndUpdate(context.TODO(), bson.D{{Key: "username", Value: username}}, bson.D{{Key: "$set", Value: bson.D{{Key: "role", Value: "admin"}}}})
 	if result.Err() != nil && result.Err().Error() == mongo.ErrNoDocuments.Error() {
 		return UserError{message: "error: user not found", code: 404}
 	}
