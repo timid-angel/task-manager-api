@@ -24,8 +24,8 @@ func (uR *UserRepository) CheckDuplicate(c context.Context, key string, value in
 		return nil
 	}
 
-	if result.Err() != nil {
-		return domain.UserError{Message: "Internal server error", Code: domain.ERR_INTERNAL_SERVER}
+	if result.Err() == nil {
+		return domain.UserError{Message: "Bad request: duplicate " + key, Code: domain.ERR_BAD_REQUEST}
 	}
 
 	return domain.UserError{Message: errorMessage, Code: domain.ERR_INTERNAL_SERVER}

@@ -39,12 +39,12 @@ checks if an object that matches the provided filter object exists
 */
 func CheckDuplicate(filter bson.D, errorMessage string) CodedError {
 	result := UserCollection.FindOne(context.TODO(), filter)
-	if result.Err() == mongo.ErrNoDocuments {
+	if result.Err() != nil && result.Err().Error() == mongo.ErrNoDocuments.Error() {
 		return nil
 	}
 
-	if result.Err() != nil {
-		return UserError{message: "Internal server error", code: 500}
+	if result.Err() == nil {
+		return UserError{message: "Bad request: duplicate username or email", code: 400}
 	}
 
 	return UserError{message: errorMessage, code: 400}
