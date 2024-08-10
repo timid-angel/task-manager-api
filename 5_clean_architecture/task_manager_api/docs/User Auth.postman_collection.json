@@ -13,7 +13,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"natms3@gmail.com\",\n    \"password\": \"this is a very bad password\",\n    \"username\": \"kysk1\",\n    \"role\": \"user\"\n}",
+					"raw": "{\n    \"email\": \"natms9@gmail.com\",\n    \"password\": \"this is a very bad password\",\n    \"username\": \"user1234\",\n    \"role\": \"user\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -42,7 +42,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"username\": \"kysk\",\n    \"password\": \"this is a very bad password\"\n}",
+					"raw": "{\n    \"username\": \"admin123\",\n    \"password\": \"this is a very bad password\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -61,6 +61,36 @@
 					]
 				},
 				"description": "### Login Endpoint\n\nThis endpoint allows users to authenticate and obtain a token for accessing protected resources.\n\n#### Request\n\n- Method: POST\n    \n- URL: `http://localhost:8080/login`\n    \n- Body:\n    \n    - `username` (text, required): The username of the user.\n        \n    - `password` (text, required): The password of the user.\n        \n\n#### Response\n\nThe response is in JSON format with the following schema:\n\n``` json\n{\n    \"type\": \"object\",\n    \"properties\": {\n        \"message\": {\n            \"type\": \"string\"\n        },\n        \"token\": {\n            \"type\": \"string\"\n        }\n    }\n}\n\n ```\n\n- Status: 200 OK\n    \n- Content-Type: application/json\n    \n- `message`: A message indicating the result of the login attempt.\n    \n- `token`: A token for accessing protected resources."
+			},
+			"response": []
+		},
+		{
+			"name": "Promote User",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVzQXQiOiIyMDI0LTA4LTEwVDExOjU1OjAzLjY5NTIyODAwNSswMzowMCIsInVzZXJuYW1lIjoiYWRtaW4xMjMifQ.NhVn-7QD67yoT1CQ2ibjzaVTLGuJOIxAqmUerTjDfZ0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/promote/user1234",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"promote",
+						"user1234"
+					]
+				}
 			},
 			"response": []
 		}
