@@ -94,3 +94,10 @@ func (uC *UserUsecase) ValidateAndGetToken(c context.Context, user domain.User) 
 	jwtSecret := viper.GetString("SECRET_TOKEN")
 	return uC.SignJWTWithPayload(storedUser.Username, storedUser.Role, tkLifespan, jwtSecret)
 }
+
+/* Calls PromoteUser with the provided username in the repository after setting the timeout */
+func (uC *UserUsecase) Promote(c context.Context, username string) domain.CodedError {
+	ctx, cancel := context.WithTimeout(c, uC.Timeout)
+	defer cancel()
+	return uC.UserRespository.PromoteUser(ctx, username)
+}

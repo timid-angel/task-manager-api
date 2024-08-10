@@ -84,6 +84,26 @@ func (_m *UserRepositoryInterface) GetByUsername(c context.Context, username str
 	return r0, r1
 }
 
+// PromoteUser provides a mock function with given fields: c, username
+func (_m *UserRepositoryInterface) PromoteUser(c context.Context, username string) domain.CodedError {
+	ret := _m.Called(c, username)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PromoteUser")
+	}
+
+	var r0 domain.CodedError
+	if rf, ok := ret.Get(0).(func(context.Context, string) domain.CodedError); ok {
+		r0 = rf(c, username)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(domain.CodedError)
+		}
+	}
+
+	return r0
+}
+
 // NewUserRepositoryInterface creates a new instance of UserRepositoryInterface. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewUserRepositoryInterface(t interface {

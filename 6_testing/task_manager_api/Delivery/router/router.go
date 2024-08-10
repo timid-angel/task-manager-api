@@ -76,6 +76,9 @@ func NewAuthController(timeout time.Duration, collection *mongo.Collection, grou
 		UserUsecase: &authUsecase,
 	}
 
+	secret := viper.GetString("SECRET_TOKEN")
+	validateToken := infrastructure.ValidateAndParseToken
 	group.POST("/signup", authController.Signup)
 	group.POST("/login", authController.Login)
+	group.PATCH("/promote/:username", infrastructure.AuthMiddlewareWithRoles([]string{"admin"}, secret, validateToken), authController.Promote)
 }

@@ -34,6 +34,26 @@ func (_m *UserUsecaseInterface) CreateUser(c context.Context, user domain.User) 
 	return r0
 }
 
+// Promote provides a mock function with given fields: c, username
+func (_m *UserUsecaseInterface) Promote(c context.Context, username string) domain.CodedError {
+	ret := _m.Called(c, username)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Promote")
+	}
+
+	var r0 domain.CodedError
+	if rf, ok := ret.Get(0).(func(context.Context, string) domain.CodedError); ok {
+		r0 = rf(c, username)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(domain.CodedError)
+		}
+	}
+
+	return r0
+}
+
 // ValidateAndGetToken provides a mock function with given fields: c, user
 func (_m *UserUsecaseInterface) ValidateAndGetToken(c context.Context, user domain.User) (string, domain.CodedError) {
 	ret := _m.Called(c, user)

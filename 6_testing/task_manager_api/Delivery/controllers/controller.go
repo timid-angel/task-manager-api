@@ -138,3 +138,15 @@ func (uC *UserController) Login(c *gin.Context) {
 
 	c.JSON(http.StatusOK, domain.Response{"message": "User logged in successfully", "token": token})
 }
+
+// handler for /promote/:username
+func (uC *UserController) Promote(c *gin.Context) {
+	username := c.Param("username")
+	err := uC.UserUsecase.Promote(c, username)
+	if err != nil {
+		c.JSON(GetHTTPErrorCode(err), domain.Response{"message": err.Error()})
+		return
+	}
+
+	c.JSON(200, domain.Response{"message": "Used promoted successfully"})
+}
