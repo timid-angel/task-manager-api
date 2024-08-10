@@ -149,6 +149,7 @@ and authorization system.
 type UserUsecaseInterface interface {
 	CreateUser(c context.Context, user User) CodedError
 	ValidateAndGetToken(c context.Context, user User) (string, CodedError)
+	Promote(c context.Context, username string) CodedError
 }
 
 /*
@@ -160,6 +161,7 @@ type UserRepositoryInterface interface {
 	CreateUser(c context.Context, user User) CodedError
 	CheckDuplicate(c context.Context, key string, value interface{}, errorMessage string) CodedError
 	GetByUsername(c context.Context, username string) (User, CodedError)
+	PromoteUser(c context.Context, username string) CodedError
 }
 
 /*
