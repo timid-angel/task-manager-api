@@ -73,4 +73,5 @@ func NewAuthController(timeout time.Duration, collection *mongo.Collection, grou
 
 	group.POST("/signup", authController.Signup)
 	group.POST("/login", authController.Login)
+	group.PATCH("/promote/:username", infrastructure.AuthMiddlewareWithRoles([]string{"admin"}), authController.Promote)
 }

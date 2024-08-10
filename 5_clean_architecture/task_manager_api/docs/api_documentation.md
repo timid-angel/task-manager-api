@@ -9,6 +9,44 @@ go run ./Delivery
 
 To check whether the API has started running successfully, make a request to `/ping`.
 
+## Features
+### Task API
+- Get all tasks
+- Get tasks by ID
+- Create new tasks
+- Update tasks by ID
+- Delete tasks by ID
+
+### Auth
+- Signup User using username and email
+- Login User
+- Promote User to Admin
+
+## Project Structure
+> Delivery: Contains files related to the delivery layer, handling incoming requests and responses.
+- `main.go`: Sets up the HTTP server, initializes dependencies, and defines the routing configuration.
+- `controllers/controllers.go`: Handles incoming HTTP requests and invokes the appropriate use case methods.
+- `routers/routers.go`: Sets up the routes and initializes the Gin router.
+
+
+> Domain/: Defines the core business entities and logic.
+
+- `domain.go`: Contains the core business entities such as Task and User structs, the interface definitions for controllers, usecases and repositories along with a customer `error` model used to communicate errors throughout the application
+
+> Infrastructure/: Implements external dependencies and services.
+- `auth_middleWare.go`: Middleware to handle authentication and authorization using JWT tokens.
+- `jwt_service.go`: Functions to generate and validate JWT tokens.
+- `password_service.go`: Functions for hashing and comparing passwords to ensure secure storage of user credentials.
+
+> Repositories/: Abstracts the data access logic.
+- task_repository.go: Interface and implementation for task data access operations.
+
+- user_repository.go: Interface and implementation for user data access operations.
+
+> Usecases/: Contains the application-specific business rules.
+- task_usecases.go: Implements the use cases related to tasks, such as creating, updating, retrieving, and deleting tasks.
+- user_usecases.go: Implements the use cases related to users, such as registering, logging in.
+
 ## Enviornment Variables
 
 **[IMPORTANT]** There has been a change in how the environment variables are organized. The project now uses the `.env` file located in the root directory with the help of the `viper` package for managing these constants. Additionally, there are additional variables that need to be declared.
@@ -127,6 +165,34 @@ curl --location 'http://localhost:8080/login' \
 {
     "message": "User logged in successfully",
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imt5c2sifQ.pIb58jAfa9Rd3u38AzTLdtU_hGR624P6by2epR_baMM"
+}
+```
+
+## Promote
+
+### Authorization: Admin
+
+**METHOD: PATCH**
+
+`http://localhost:8080/promote/:username`
+
+This endpoint allows admins to promote a user specified by their unique username in the route parameters.
+
+### Response Body
+
+After a successful promote request, the response will be sent with a status code of `200`. The body will contain a JSON object with a message.
+- `message`: A message indicating the result of the request to promote a user.
+
+**Example Request (CURL):**
+```bash
+curl --location --request PATCH 'http://localhost:8080/promote/user1234' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVzQXQiOiIyMDI0LTA4LTEwVDExOjU1OjAzLjY5NTIyODAwNSswMzowMCIsInVzZXJuYW1lIjoiYWRtaW4xMjMifQ.NhVn-7QD67yoT1CQ2ibjzaVTLGuJOIxAqmUerTjDfZ0'
+```
+
+**Example Response Body:**
+```json
+{
+    "message": "Used promoted successfully"
 }
 ```
 

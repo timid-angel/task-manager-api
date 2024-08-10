@@ -128,7 +128,7 @@ func Login(c *gin.Context) {
 	c.JSON(200, gin.H{"message": "User logged in successfully", "token": token})
 }
 
-// handler for /promote
+// handler for /promote/:username
 func Promote(c *gin.Context) {
 	username := c.Param("username")
 	err := services.PromoteUser(username)

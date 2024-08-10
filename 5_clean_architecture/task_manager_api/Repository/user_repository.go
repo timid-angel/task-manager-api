@@ -62,3 +62,17 @@ func (uR *UserRepository) GetByUsername(c context.Context, username string) (dom
 
 	return storedUser, nil
 }
+
+/* Promotes an account with role `user` to role `admin` */
+func (uR *UserRepository) PromoteUser(c context.Context, username string) domain.CodedError {
+	result := uR.Collection.FindOneAndUpdate(context.TODO(), bson.D{{Key: "username", Value: username}}, bson.D{{Key: "$set", Value: bson.D{{Key: "role", Value: "admin"}}}})
+	if result.Err() != nil && result.Err().Error() == mongo.ErrNoDocuments.Error() {
+		return domain.UserError{Message: "error: user not found", Code: domain.ERR_BAD_REQUEST}
+	}
+
+	if result.Err() != nil {
+		return domain.UserError{Message: "error: " + result.Err().Error(), Code: domain.ERR_INTERNAL_SERVER}
+	}
+
+	return nil
+}

@@ -102,7 +102,7 @@ func main() {
 
 	// connect to DB
 	client, err := ConnectDB(viper.GetString("DB_ADDRESS"))
-	db := client.Database(viper.GetString("task_API"))
+	db := client.Database(viper.GetString("DB_NAME"))
 	if err != nil {
 		log.Fatalf("Error: %v", err.Error())
 		return
