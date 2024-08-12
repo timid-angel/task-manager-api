@@ -137,7 +137,7 @@ curl --location 'http://localhost:8080/login' \
 
 ## Promote
 
-### Authorization: Admin
+### Authorization: `admin`
 
 **METHOD: PATCH**
 
@@ -168,7 +168,7 @@ curl --location --request PATCH 'http://localhost:8080/promote/user1234' \
 
 ## Get Tasks
 
-### Authorization: None
+### Authorization: `user` `admin`
 
 **METHOD: GET**
 
@@ -209,7 +209,7 @@ curl --location 'http://localhost:8080/tasks'
 
 ## Get One Task
 
-### Authorization: None
+### Authorization: `user` `admin`
 
 **METHOD: GET**
 
@@ -235,7 +235,7 @@ curl --location 'http://localhost:8080/tasks/4'
 
 ## Create Task
 
-### Authorization: `user` `admin`
+### Authorization: `admin`
 
 **METHOD: POST**
 
@@ -281,7 +281,7 @@ curl --location 'http://localhost:8080/tasks' \
 
 ## Update Task
 
-### Authorization: `user` `admin`
+### Authorization: `admin`
 
 **METHOD: PUT**
 
