@@ -133,7 +133,7 @@ curl --location 'http://localhost:8080/signup' \
 
 **METHOD: POST**
 
-`http://localhost:8080/signup`
+`http://localhost:8080/login`
 
 This endpoint allows users to authenticate and obtain a token for accessing protected resources.
 
